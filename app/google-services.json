@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "791016892746",
+    "firebase_url": "https://tidy-computing-271115.firebaseio.com",
+    "project_id": "tidy-computing-271115",
+    "storage_bucket": "tidy-computing-271115.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791016892746:android:8d251d71ba9e366f0039b3",
+        "android_client_info": {
+          "package_name": "com.ease.timezones"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "791016892746-65lbtahsu9k7r19j3oto5d7b4gej9ptf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ease.timezones",
+            "certificate_hash": "285a73d883828c61189598734ab943004becd444"
+          }
+        },
+        {
+          "client_id": "791016892746-4fd31q6uad61pa1tdhop12vrfdq8nqof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1n1NBE7ae4hLpksthJRMgImwvS4t8h0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "791016892746-4fd31q6uad61pa1tdhop12vrfdq8nqof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
