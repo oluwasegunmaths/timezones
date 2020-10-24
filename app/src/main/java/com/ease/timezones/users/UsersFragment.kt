@@ -9,70 +9,90 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.R
-import com.ease.timezones.User
+import com.ease.timezones.models.User
 import com.ease.timezones.Utils.ROLE
 import com.ease.timezones.databinding.FragmentUsersBinding
+import com.ease.timezones.models.DisplayedUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 
 class UsersFragment : Fragment() {
-    private lateinit var binding:FragmentUsersBinding
+    private lateinit var binding: FragmentUsersBinding
     private lateinit var adapter: SelectedTimesAdapter
     private lateinit var mFirebaseDatabase: FirebaseDatabase
     private lateinit var mFirebaseAuth: FirebaseAuth
-    private  var userDR: DatabaseReference?=null
+    private var isAdmin: Boolean = false
+
+    private var userDR: DatabaseReference? = null
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding= DataBindingUtil.inflate(
-                inflater, R.layout.fragment_users, container, false
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_users, container, false
         )
         mFirebaseDatabase = FirebaseDatabase.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
-            userDR = mFirebaseDatabase.getReference().child("users")
+        userDR = mFirebaseDatabase.getReference().child("users")
         setUpRecycler()
+        isAdmin = UsersFragmentArgs.fromBundle(requireArguments()).isAdmin
 
         attachChatDatabaseReadListener()
         setUpFAB()
+        setHasOptionsMenu(true)
         return binding.root
     }
+
     private fun setUpFAB() {
         binding.floatingActionButton.setOnClickListener { v ->
-            findNavController().navigate(UsersFragmentDirections.actionUsersFragmentToRegisterFragment())
+            findNavController().navigate(
+                UsersFragmentDirections.actionUsersFragmentToAddEditOrDeleteUserFragment(
+                    null,
+                    false
+                )
+            )
         }
     }
 
     private fun setUpRecycler() {
         binding.recycler.layoutManager = LinearLayoutManager(this.requireContext())
-        adapter =SelectedTimesAdapter(this.requireContext(), object : SelectedTimesAdapter.ItemClickListener {
-            override fun onItemClick(user: User?) {
-                user?.run {
-                    findNavController().navigate(UsersFragmentDirections.actionUsersFragmentToTimeZoneFragment(authId))
+        adapter = SelectedTimesAdapter(
+            this.requireContext(),
+            object : SelectedTimesAdapter.ItemClickListener {
+                override fun onItemClick(user: DisplayedUser?) {
+                    user?.run {
+                        findNavController().navigate(
+                            UsersFragmentDirections.actionUsersFragmentToAddEditOrDeleteUserFragment(
+                                user,
+                                isAdmin
+                            )
+                        )
+                    }
                 }
-            }
 
-        })
+            })
         binding.recycler.adapter = adapter
     }
 
     private fun attachChatDatabaseReadListener() {
-        val users= mutableListOf<User>()
-        mFirebaseAuth.
-        var page: ListUsersPage = FirebaseAuth.getInstance().del(null)
-        while (page != null) {
-            for (user in page.getValues()) {
-                System.out.println("User: " + user.getUid())
-            }
-            page = page.getNextPage()
-        }
+        val users = mutableListOf<DisplayedUser>()
+//        mFirebaseAuth.
+//        var page: ListUsersPage = FirebaseAuth.getInstance().del(null)
+//        while (page != null) {
+//            for (user in page.getValues()) {
+//                System.out.println("User: " + user.getUid())
+//            }
+//            page = page.getNextPage()
+//        }
         val mChatChildEventListener: ChildEventListener = object : ChildEventListener {
             override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
-                val selectedTime = dataSnapshot.getValue(User::class.java)
-                selectedTime?.let {
-                    users.add(it)
+                val user = dataSnapshot.getValue(User::class.java)
+                val key = dataSnapshot.key
+                if (key == null) return
+                user?.let {
+                    users.add(it.asDisplayedUser(key))
                     adapter.setPatients(users)
                     adapter.notifyItemInserted(users.size)
                 }
@@ -100,6 +120,7 @@ class UsersFragment : Fragment() {
 //            }
 //        })
     }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_admins, menu)
         super.onCreateOptionsMenu(menu, inflater)

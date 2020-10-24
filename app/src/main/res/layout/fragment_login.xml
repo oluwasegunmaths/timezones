@@ -5,12 +5,15 @@
 
     <data>
 
+        <variable
+            name="viewModel"
+            type="com.ease.timezones.splashscreen.SplashScreenViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@id/parent"
         tools:context=".auth.LogInActivity">
 
         <EditText
@@ -20,7 +23,8 @@
             android:layout_marginTop="8dp"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:text="Name"
+            android:text="@={viewModel.emailText}"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -31,6 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:ems="10"
+            android:text="@={viewModel.passwordText}"
+
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -88,6 +94,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/progressBar" />
+
         <com.google.android.gms.common.SignInButton
             android:id="@+id/Google_login_button"
             android:layout_width="wrap_content"
@@ -95,8 +102,7 @@
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/or_textview"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/or_textview" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

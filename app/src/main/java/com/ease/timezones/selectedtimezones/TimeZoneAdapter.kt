@@ -1,38 +1,50 @@
-package com.ease.timezones.selectedtimezones
+package com.ease.timezones.DisplayedTimezones
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.ease.timezones.SelectedTime
+import com.ease.timezones.models.DisplayedTime
 import com.ease.timezones.databinding.TimezoneListItemBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 
 class TimeZonesAdapter internal constructor(
         private val context: Context,
         private val itemClickListener: ItemClickListener?
 ) :
+
         RecyclerView.Adapter<TimeZonesAdapter.ViewHolder>() {
-    private var joggingEntryList: List<SelectedTime>? = null
+
+    private var viewModelJob = Job()
+
+
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+    private var displayedTimeList: List<DisplayedTime>? = null
     private var searchText: String? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 //        LayoutInflater inflater = LayoutInflater.from(context);
 //        View view = inflater.inflate(R.layout.patient_list_item, parent, false);
         val binding: TimezoneListItemBinding =
-                TimezoneListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            TimezoneListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(joggingEntryList!![position])
+        holder.bind(displayedTimeList!![position])
     }
 
     override fun getItemCount(): Int {
-        return if (null == joggingEntryList) 0 else joggingEntryList!!.size
+        return if (null == displayedTimeList) 0 else displayedTimeList!!.size
     }
 
-    fun setPatients(joggingEntries: List<SelectedTime>?) {
-        joggingEntryList = joggingEntries
+    fun setDisplayedTimes(displayedTimes: MutableList<DisplayedTime>) {
+        if (viewModelJob.isActive) viewModelJob.cancel()
+
+        displayedTimeList = displayedTimes
         notifyDataSetChanged()
     }
 
@@ -41,7 +53,7 @@ class TimeZonesAdapter internal constructor(
     }
 
     interface ItemClickListener {
-        fun onItemClick(selectedTime: SelectedTime?)
+        fun onItemClick(displayedTime: DisplayedTime?)
     }
 
     inner class ViewHolder internal constructor(val binding: TimezoneListItemBinding) :
@@ -49,11 +61,16 @@ class TimeZonesAdapter internal constructor(
         //        var hospitalNumber: TextView? = null
 //        var binding: JoggingEntryListItemBinding
         override fun onClick(view: View) {
-            itemClickListener?.onItemClick(joggingEntryList!![adapterPosition])
+            itemClickListener?.onItemClick(displayedTimeList!![adapterPosition])
         }
 
-        fun bind(selectedTime: SelectedTime) {
-            binding.textView2.setText(selectedTime.name)
+        fun bind(displayedTime: DisplayedTime) {
+            binding.timeZoneNameTv.setText(displayedTime.name)
+            binding.timeZoneLocTv.setText(displayedTime.location)
+            binding.timeZoneTimeTv.setText(displayedTime.currentTime)
+            binding.timeZoneOffsetTv.setText(displayedTime.browserOffset)
+
+
         }
 
         init {

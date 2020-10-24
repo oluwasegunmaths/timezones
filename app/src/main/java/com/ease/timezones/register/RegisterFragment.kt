@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
 import com.ease.timezones.Utils.PROPER_ENDING
+import com.ease.timezones.Utils.endsProperly
 import com.ease.timezones.databinding.FragmentRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -30,10 +31,10 @@ class RegisterFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding= DataBindingUtil.inflate(
-                inflater, R.layout.fragment_register, container, false
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_register, container, false
         )
-        con=requireContext()
+        con = requireContext()
         binding.button.setOnClickListener {
             Log.d(
                     TAG,
@@ -81,8 +82,9 @@ class RegisterFragment : Fragment() {
                 ).show()
             }
         }
-        return  binding.root
+        return binding.root
     }
+
     fun registerNewEmail(email: String?, password: String?) {
         binding.progressBar2.setVisibility(View.VISIBLE)
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email!!, password!!)
@@ -132,13 +134,6 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    private fun endsProperly(email: String): Boolean {
-        if (email.length < 5) return false
-        Log.d(TAG, "isValidDomain: verifying email has correct domain: $email")
-        val domain = email.substring(email.length - 4).toLowerCase()
-        Log.d(TAG, "isValidDomain: users domain: $domain")
-        return domain == PROPER_ENDING
-    }
 
     /**
      * Redirects the user to the login screen

@@ -5,15 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.ease.timezones.User
 import com.ease.timezones.databinding.UserListItemBinding
+import com.ease.timezones.models.DisplayedUser
 
 class SelectedTimesAdapter internal constructor(
-        private val context: Context,
-        private val itemClickListener: ItemClickListener?=null
+    private val context: Context,
+    private val itemClickListener: ItemClickListener? = null
 ) :
         RecyclerView.Adapter<SelectedTimesAdapter.ViewHolder>() {
-    private var joggingEntryList: List<User>? = null
+    private var joggingEntryList: List<DisplayedUser>? = null
     private var searchText: String? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 //        LayoutInflater inflater = LayoutInflater.from(context);
@@ -31,7 +31,7 @@ class SelectedTimesAdapter internal constructor(
         return if (null == joggingEntryList) 0 else joggingEntryList!!.size
     }
 
-    fun setPatients(joggingEntries: List<User>?) {
+    fun setPatients(joggingEntries: List<DisplayedUser>?) {
         joggingEntryList = joggingEntries
         notifyDataSetChanged()
     }
@@ -41,7 +41,7 @@ class SelectedTimesAdapter internal constructor(
     }
 
     interface ItemClickListener {
-        fun onItemClick(user: User?)
+        fun onItemClick(user: DisplayedUser?)
     }
 
     inner class ViewHolder internal constructor(val binding: UserListItemBinding) :
@@ -52,8 +52,9 @@ class SelectedTimesAdapter internal constructor(
             itemClickListener?.onItemClick(joggingEntryList!![adapterPosition])
         }
 
-        fun bind(user: User) {
-            binding.textView2.setText(user.name)
+        fun bind(user: DisplayedUser) {
+            binding.textviewListItemUsername.setText(user.displayName)
+            binding.textviewListItemEmail.setText(user.email)
         }
 
         init {
