@@ -157,11 +157,6 @@ class TimeZoneFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_signout) {
             FirebaseAuth.getInstance().signOut()
-            val sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this.requireContext())
-            val editor = sharedPreferences.edit()
-            editor.putString(ROLE, null)
-            editor.apply()
             findNavController().navigate(TimeZoneFragmentDirections.actionTimeZoneFragmentToLoginFragment())
             return true
         } else if (item.itemId == R.id.action_search) {

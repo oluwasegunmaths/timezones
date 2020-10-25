@@ -3,6 +3,8 @@ package com.ease.timezones
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,4 +46,15 @@ object Utils {
         return domain == PROPER_ENDING
     }
 
+    fun showToast(message: String, context: Context) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun isThereConnection(): Boolean {
+        return true;
+    }
+
+    fun isEmptyOrNull(livedata: MutableLiveData<String>): Boolean {
+        return livedata.value == null || livedata.value == ""
+    }
 }

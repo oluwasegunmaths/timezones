@@ -1,30 +1,19 @@
 package com.ease.timezones.splashscreen
 
 import android.app.Application
-import android.preference.PreferenceManager
-import android.util.Log
-import android.view.View
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import androidx.navigation.fragment.findNavController
 import com.ease.timezones.Utils
-import com.ease.timezones.login.LoginFragmentDirections
-import com.ease.timezones.models.User
+import com.ease.timezones.Utils.isEmptyOrNull
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 
-class SplashScreenViewModel(
-    app: Application
-) : AndroidViewModel(app) {
-    //    private val _userLiveData = MutableLiveData<FirebaseUser>()
+class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
     private lateinit var managersDR: DatabaseReference
-
-    //    val userLiveData: LiveData<FirebaseUser>
-//        get() = _userLiveData
     val mFirebaseDatabase = FirebaseDatabase.getInstance()
     val mFirebaseAuth = FirebaseAuth.getInstance()
 
@@ -38,157 +27,177 @@ class SplashScreenViewModel(
         class NormalUser(val uid: String) : Role()
     }
 
-    private val _emailText = MutableLiveData<String>()
-    val emailText: LiveData<String>
-        get() = _emailText
-    private val _passwordText = MutableLiveData<String>()
-    val passwordText: LiveData<String>
-        get() = _passwordText
+    val _emailText = MutableLiveData<String>()
+    val _passwordText = MutableLiveData<String>()
+    val registerEmailText = MutableLiveData<String>()
+    val registerPasswordText = MutableLiveData<String>()
+    val registerPassWordConfirmationText = MutableLiveData<String>()
+
     private val _role = MutableLiveData<Role>()
     val role: LiveData<Role>
         get() = _role
+
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: LiveData<String>
         get() = _toastMessage
+
     private val _showResetPassword = MutableLiveData<Boolean>()
     val showResetPassword: LiveData<Boolean>
         get() = _showResetPassword
+
     private val _showLoginProgressBar = MutableLiveData<Boolean>()
     val showLoginProgressBar: LiveData<Boolean>
         get() = _showLoginProgressBar
 
+    private val _registerBackToLogin = MutableLiveData<Boolean>()
+    val registerBackToLogin: LiveData<Boolean>
+        get() = _registerBackToLogin
 
-    val authenticationState = FirebaseUserLiveData(mFirebaseAuth).map { user ->
+    val authenticationState: LiveData<AuthenticationState> = FirebaseUserLiveData(mFirebaseAuth).map { user ->
         if (user != null) {
             if (user.isEmailVerified) {
-                AuthenticationState.EMAILVERIFIED
-//                _userLiveData.value=user
                 val adminsDR = mFirebaseDatabase.getReference().child("admins").child(user.uid)
                 managersDR = mFirebaseDatabase.getReference().child("managers").child(user.getUid())
-
                 adminsDR.addListenerForSingleValueEvent(valueEventListener(user))
+                AuthenticationState.EMAILVERIFIED
             } else {
                 AuthenticationState.NOTEMAILVERIFIED
             }
         } else {
+            _toastMessage.value = "signed out"
             AuthenticationState.UNAUTHENTICATED
 
         }
     }
 
 
-    private fun valueEventListener(
-        user: FirebaseUser,
-        checkingForAdmin: Boolean = true
-    ): ValueEventListener {
-        Log.i("nnnnnnnnnn", "before")
-
+    private fun valueEventListener(user: FirebaseUser, checkingForAdmin: Boolean = true): ValueEventListener {
         return object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                Log.i("nnnnnnnnnn", "after")
-
                 if (checkingForAdmin) {
                     if (snapshot.exists()) {
-
-                        Log.i("nnnnnnnnnn", "3")
                         _role.value = Role.Admin()
-//                        Toast.makeText(con,
-//                            "Authenticated with: " + user?.email, Toast.LENGTH_SHORT)
-//                            .show()
-//
-//                        navController.navigate(LoginFragmentDirections.actionLoginFragmentToUsersFragment(true))
-
+                        _toastMessage.value = "Authenticated with: " + user.email
                     } else {
-                        Log.i("nnnnnnnnnn", "4")
-
                         managersDR.addListenerForSingleValueEvent(valueEventListener(user, false))
                     }
                 } else {
                     if (snapshot.exists()) {
-                        Log.i("nnnnnnnnnn", "5")
                         _role.value = Role.Manager()
-
-
-//                        Toast.makeText(con,
-//                            "Authenticated with: " + user?.email, Toast.LENGTH_SHORT)
-//                            .show()
-//                        Log.i("dddddddd", findNavController().currentDestination?.label.toString())
-//
-//                        navController.navigate(LoginFragmentDirections.actionLoginFragmentToUsersFragment(false))
+                        _toastMessage.value = "Authenticated with: " + user.email
                     } else {
                         _role.value = Role.NormalUser(user.uid)
-                        Log.i("nnnnnnnnnn", "6")
-
-//                        Toast.makeText(con,
-//                            "Authenticated with: " + user?.email, Toast.LENGTH_SHORT)
-//                            .show()
-//                        Log.i("dddddddd", findNavController().currentDestination?.label.toString())
-//
-//                        navController.navigate(LoginFragmentDirections.actionLoginFragmentToTimeZoneFragment(auth?.uid))
+                        _toastMessage.value = "Authenticated with: " + user.email
                     }
-
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("Firebase database", databaseError.message)
+                _toastMessage.value = "Error authenticating" + user.email + "due to" + databaseError.message
             }
         }
     }
 
     fun signIn() {
-        if (!(emailText.value == null || emailText.value == "" || passwordText.value == null || passwordText.value == "")) {
+        if (!isEmptyOrNull(_emailText) && !isEmptyOrNull(_passwordText)) {
             _showLoginProgressBar.value = true
-
-            mFirebaseAuth.signInWithEmailAndPassword(
-                emailText.value!!,
-                passwordText.value!!
-            ).addOnCompleteListener { task ->
+            mFirebaseAuth.signInWithEmailAndPassword(_emailText.value!!, _passwordText.value!!).addOnCompleteListener { task ->
                 _showLoginProgressBar.value = false
-//                    binding.progressBar.setVisibility(View.GONE)
                 if (!task.isSuccessful) {
                     if (task.exception != null) {
-                        _toastMessage.value = """
-                                    Authentication Unsuccessful
-                                    ${task.exception!!.message}
-                                    """.trimIndent()
-
+                        _toastMessage.value = """Authentication Unsuccessful${task.exception!!.message}""".trimIndent()
                     } else {
                         _toastMessage.value = "Authentication Unsuccessful"
                     }
                     _showResetPassword.value = true
                 }
             }.addOnFailureListener { e ->
-                _toastMessage.value = """Authentication Failed 
-                            ${e.message}
-                            """.trimIndent()
-
+                _toastMessage.value = """Authentication Failed${e.message}""".trimIndent()
                 _showLoginProgressBar.value = false
                 _showResetPassword.value = true
             }
         } else {
             _toastMessage.value = "You didn't fill in all the fields."
-
         }
-
     }
-
     fun resetPassword() {
-        if (emailText.value == null || emailText.value == "") {
-            _toastMessage.value = "Password Reset Link Sent to Email"
-
-
+        if (isEmptyOrNull(_emailText)) {
+            _toastMessage.value = "Fill in your email"
             return;
         }
-
-        mFirebaseAuth.sendPasswordResetEmail(emailText.value!!)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _toastMessage.value = "Password Reset Link Sent to Email"
-                } else {
-                    _toastMessage.value = "No User is Associated with that Email"
-                }
+        mFirebaseAuth.sendPasswordResetEmail(_emailText.value!!).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                _toastMessage.value = "Password Reset Link Sent to Email"
+            } else {
+                _toastMessage.value = "No User is Associated with that Email"
             }
+        }
+    }
 
+    fun firebaseAuthWithGoogle(idToken: String?) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                _toastMessage.value = "Authentication Failed"
+            }
+        }.addOnCanceledListener {
+            _toastMessage.value = "Authentication Cancelled"
+        }
+    }
+
+    fun sendEmailVerification() {
+        mFirebaseAuth.currentUser?.sendEmailVerification()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                _toastMessage.value = "Sent Verification Email"
+            } else {
+                _toastMessage.value = "couldn't send email"
+            }
+        }
+        mFirebaseAuth.signOut()
+    }
+
+    fun registerNewUser() {
+        if (!isEmptyOrNull(registerEmailText) && !isEmptyOrNull(registerPasswordText) && !isEmptyOrNull(registerPassWordConfirmationText)) {
+            //check if email ends with '.com'
+            if (Utils.endsProperly(registerEmailText.value!!)) {
+                //check if passwords match
+                if (registerPasswordText.value.equals(registerPassWordConfirmationText.value)) {
+                    //Initiate registration task
+                    registerNewEmail(registerEmailText.value!!, registerPasswordText.value!!)
+                } else {
+                    _toastMessage.value = "Passwords do not Match"
+                }
+            } else {
+                _toastMessage.value = "Please Register with valid Email"
+            }
+        } else {
+            _toastMessage.value = "You must fill out all the fields"
+        }
+    }
+
+    private fun registerNewEmail(email: String, password: String) {
+        _showLoginProgressBar.value = true
+        mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                //send email verificaiton
+                sendEmailVerification()
+                mFirebaseAuth.signOut()
+
+                //redirect the user to the login screen
+                _registerBackToLogin.value = true
+            }
+            if (!task.isSuccessful) {
+                _toastMessage.value = "Unable to Register" + task.exception
+            }
+            _showLoginProgressBar.value = false
+        }
+    }
+
+    fun onRegisterToLoginCompleted() {
+        _registerBackToLogin.value = false
+    }
+
+    fun onToastDisplayed() {
+        _toastMessage.value = ""
     }
 }

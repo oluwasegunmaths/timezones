@@ -9,80 +9,49 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
+import com.ease.timezones.Utils.isThereConnection
 import com.ease.timezones.databinding.FragmentSplashScreenBinding
 
 
 class SplashScreenFragment : Fragment() {
-    val viewModel: SplashScreenViewModel =
-        ViewModelProvider(this).get(SplashScreenViewModel::class.java)
+    val viewModel: SplashScreenViewModel by lazy {
+        ViewModelProvider(this.requireActivity()).get(SplashScreenViewModel::class.java)
+
+    }
+    private lateinit var navController: NavController
 
     private lateinit var binding: FragmentSplashScreenBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_splash_screen, container, false
+                inflater, R.layout.fragment_splash_screen, container, false
         )
-
-        OpenAppOrLogIn()
-//        viewModel.userLiveData.observe(viewLifecycleOwner, Observer {
-//
-//        })
-        viewModel.role.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                SplashScreenViewModel.Role.Admin() -> openAppAsAdmin(true)
-                SplashScreenViewModel.Role.Manager() -> openAppAsAdmin(false)
-                else -> openAppAsNormalUser((it as SplashScreenViewModel.Role.NormalUser).uid)
-
-            }
-        })
+        checkForInternetConnection()
         return binding.root
     }
 
-    private fun openAppAsNormalUser(uid: String) {
-        findNavController().navigate(
-            SplashScreenFragmentDirections.actionSplashScreenFragmentToTimeZoneFragment(
-                uid
-            )
-        )
-    }
-
-    private fun openAppAsAdmin(isAdmin: Boolean) {
-        findNavController().navigate(
-            SplashScreenFragmentDirections.actionSplashScreenFragmentToUsersFragment(
-                isAdmin
-            )
-        )
-    }
-
-    private fun OpenAppOrLogIn() {
+    private fun checkForInternetConnection() {
         //check if user is connected
         if (isThereConnection()) {
             observeViewModel()
         } else {
             Toast.makeText(
-                requireContext(),
-                "Network required to use app",
-                Toast.LENGTH_LONG
+                    requireContext(),
+                    "Network required to use app",
+                    Toast.LENGTH_LONG
             ).show()
 //            makeSignInButtonVisible()
-
-            //            finish()
         }
     }
 
-    private fun isThereConnection(): Boolean {
-        return true
-    }
-
-
     private fun observeViewModel() {
-
         viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
             when (authenticationState) {
                 SplashScreenViewModel.AuthenticationState.UNAUTHENTICATED -> {
@@ -92,9 +61,9 @@ class SplashScreenFragment : Fragment() {
                 }
                 SplashScreenViewModel.AuthenticationState.NOTEMAILVERIFIED -> {
                     Toast.makeText(
-                        requireContext(),
-                        "Check your mail to verify your login",
-                        Toast.LENGTH_SHORT
+                            requireContext(),
+                            "Check your mail to verify your login",
+                            Toast.LENGTH_SHORT
                     ).show()
                     findNavController().navigate(SplashScreenFragmentDirections.actionSplashScreenFragmentToLoginFragment())
 
@@ -104,5 +73,30 @@ class SplashScreenFragment : Fragment() {
             }
 
         })
+        viewModel.role.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is SplashScreenViewModel.Role.Admin -> openAppAsAdmin(true)
+
+                is SplashScreenViewModel.Role.Manager -> openAppAsAdmin(false)
+                is SplashScreenViewModel.Role.NormalUser -> openAppAsNormalUser(it.uid)
+
+            }
+        })
+    }
+
+    private fun openAppAsNormalUser(uid: String) {
+        findNavController().navigate(
+                SplashScreenFragmentDirections.actionSplashScreenFragmentToTimeZoneFragment(
+                        uid
+                )
+        )
+    }
+
+    private fun openAppAsAdmin(isAdmin: Boolean) {
+        findNavController().navigate(
+                SplashScreenFragmentDirections.actionSplashScreenFragmentToUsersFragment(
+                        isAdmin
+                )
+        )
     }
 }

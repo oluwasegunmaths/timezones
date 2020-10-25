@@ -1,4 +1,4 @@
-package com.ease.timezones.users
+//package com.ease.timezones.users
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ease.timezones.databinding.UserListItemBinding
 import com.ease.timezones.models.DisplayedUser
 
-class SelectedTimesAdapter internal constructor(
-    private val context: Context,
-    private val itemClickListener: ItemClickListener? = null
+class UserAdapter internal constructor(
+        private val context: Context,
+        private val itemClickListener: ItemClickListener? = null
 ) :
-        RecyclerView.Adapter<SelectedTimesAdapter.ViewHolder>() {
+        RecyclerView.Adapter<UserAdapter.ViewHolder>() {
     private var joggingEntryList: List<DisplayedUser>? = null
     private var searchText: String? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
