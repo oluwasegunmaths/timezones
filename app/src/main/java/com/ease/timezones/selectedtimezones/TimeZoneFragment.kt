@@ -11,6 +11,7 @@ import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.DisplayedTimezones.TimeZonesAdapter
@@ -19,6 +20,7 @@ import com.ease.timezones.Utils.ROLE
 import com.ease.timezones.databinding.FragmentTimeZoneBinding
 import com.ease.timezones.models.DisplayedTime
 import com.ease.timezones.models.SelectedTime
+import com.ease.timezones.users.UserListViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.functions.FirebaseFunctions
@@ -27,7 +29,7 @@ import java.util.*
 
 
 class TimeZoneFragment : Fragment() {
-
+    private lateinit var viewModel:TimeZoneViewModel
     private lateinit var binding: FragmentTimeZoneBinding
     private lateinit var adapter: TimeZonesAdapter
     private lateinit var mFirebaseDatabase: FirebaseDatabase
@@ -45,27 +47,41 @@ class TimeZoneFragment : Fragment() {
         )
         mFirebaseDatabase = FirebaseDatabase.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
-        uid = TimeZoneFragmentArgs.fromBundle(requireArguments()).authId
-        uid?.let {
-            userDR = mFirebaseDatabase.getReference().child("timezones").child(it)
 
-        }
+
+            userDR = mFirebaseDatabase.getReference().child("timezones").child(uid!!)
+
+
         setUpRecycler()
 
         setUpFAB()
         setHasOptionsMenu(true)
-        FirebaseFunctions.getInstance().getHttpsCallable("getTime")
-            .call().addOnSuccessListener { httpsCallableResult ->
-                val timestamp = httpsCallableResult.data as Long
-                val format = SimpleDateFormat("M??d??H?m??s??")
-                format.setTimeZone(TimeZone.getTimeZone("GMT"))
-
-                binding.emptyTextView.text = format.format(Date(timestamp))
-                binding.emptyTextView.visibility = VISIBLE
-                attachCDatabaseReadListener(timestamp)
-
+        viewModel.timeZones.observe(viewLifecycleOwner,{
+            Log.i("ooooooo","f")
+            if(it==null||it.isEmpty()){
+                Log.i("ooooooo","hhhhhhh")
 
             }
+            adapter.setDisplayedTimes(it)
+            Log.i("ooooooo","g")
+
+        })
+        viewModel.searchText.observe(viewLifecycleOwner,{
+            adapter.setSearchText(it)
+
+        })
+//        FirebaseFunctions.getInstance().getHttpsCallable("getTime")
+//            .call().addOnSuccessListener { httpsCallableResult ->
+//                val timestamp = httpsCallableResult.data as Long
+//                val format = SimpleDateFormat("M??d??H?m??s??")
+//                format.setTimeZone(TimeZone.getTimeZone("GMT"))
+//
+//                binding.emptyTextView.text = format.format(Date(timestamp))
+//                binding.emptyTextView.visibility = VISIBLE
+//                attachCDatabaseReadListener(timestamp)
+//
+//
+//            }
 //        Remove title bar
 //        requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -79,6 +95,17 @@ class TimeZoneFragment : Fragment() {
 //
 //        (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
         return binding.root
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        uid = TimeZoneFragmentArgs.fromBundle(requireArguments()).authId
+        if(uid==null){
+            return
+        }
+        viewModel =ViewModelProvider(this,ViewModelFactory(requireActivity().application,uid!!)).get(TimeZoneViewModel::class.java)
+
     }
 
     private fun setUpFAB() {
@@ -161,34 +188,25 @@ class TimeZoneFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.action_search) {
             if (binding.toolbarEdittext.visibility == VISIBLE) {
-                binding.toolbarEdittext.removeTextChangedListener(textWatcher)
+                viewModel.changeSearching(false)
+                binding.toolbarEdittext.removeTextChangedListener(viewModel.getTextWatcher())
                 binding.toolbarEdittext.visibility = GONE
+                binding.toolbarEdittext.setText("")
                 item.setIcon(R.drawable.ic_search)
                 binding.emptyTextView.visibility = GONE
 
 
             } else {
+                viewModel.changeSearching(true)
                 item.setIcon(R.drawable.ic_up)
                 binding.toolbarEdittext.setVisibility(VISIBLE)
 
-                binding.toolbarEdittext.addTextChangedListener(textWatcher)
+                binding.toolbarEdittext.addTextChangedListener(viewModel.getTextWatcher())
             }
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    object textWatcher : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            TODO("Not yet implemented")
-        }
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            TODO("Not yet implemented")
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-            TODO("Not yet implemented")
-        }
-    }
 }

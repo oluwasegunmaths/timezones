@@ -18,10 +18,9 @@ import com.ease.timezones.databinding.FragmentSplashScreenBinding
 
 class SplashScreenFragment : Fragment() {
     val viewModel: SplashScreenViewModel by lazy {
-        ViewModelProvider(this.requireActivity()).get(SplashScreenViewModel::class.java)
+        ViewModelProvider(this).get(SplashScreenViewModel::class.java)
 
     }
-    private lateinit var navController: NavController
 
     private lateinit var binding: FragmentSplashScreenBinding
 

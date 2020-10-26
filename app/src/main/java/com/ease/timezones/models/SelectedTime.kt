@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
 data class SelectedTime(
     var name: String?,
     var location: String?,
-    var GMTOffset: Long?
+    var gmtoffset: Long?
 ) : Parcelable {
     constructor() : this(null, null, null)
 
@@ -26,7 +26,7 @@ data class SelectedTime(
 //    }
 
     fun asDisplayedTime(browserTime: Long, key: String): DisplayedTime {
-        val offset = GMTOffset ?: 0
+        val offset = gmtoffset ?: 0
         val currentTime = getHourMinuteString(browserTime + offset)
         val hourMinute = getHourMinuteString(offset)
         return DisplayedTime(

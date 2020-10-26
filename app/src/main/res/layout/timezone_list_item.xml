@@ -9,7 +9,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="20dp"
@@ -41,15 +41,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/time_zone_name_tv" />
 
-            <TextView
-                android:id="@+id/time_zone_time_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/time_zone_offset_tv"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/time_zone_name_tv"
-                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/time_zone_offset_tv"
@@ -60,6 +51,18 @@
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/time_zone_loc_tv"
                 app:layout_constraintTop_toBottomOf="@+id/time_zone_time_tv" />
+
+            <TextClock
+                android:id="@+id/time_zone_time_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format12Hour="dd-MMM-yyyy:hh:mm:ss a"
+
+                app:layout_constraintBottom_toTopOf="@+id/time_zone_offset_tv"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/time_zone_name_tv"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

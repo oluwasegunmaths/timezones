@@ -23,7 +23,7 @@
             android:layout_marginTop="8dp"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:text="@={viewModel.emailText}"
+            android:text="@={viewModel._emailText}"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:ems="10"
-            android:text="@={viewModel.passwordText}"
+            android:text="@={viewModel._passwordText}"
 
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
@@ -48,6 +48,8 @@
             android:layout_height="48dp"
             android:layout_marginTop="64dp"
             android:text="Sign in"
+            android:onClick="@{()->viewModel.signIn()}"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/reset_password" />

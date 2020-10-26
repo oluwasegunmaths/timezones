@@ -1,12 +1,14 @@
 package com.ease.timezones.splashscreen
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.ease.timezones.Utils
 import com.ease.timezones.Utils.isEmptyOrNull
+import com.ease.timezones.firebaselivedatas.FirebaseUserLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -54,8 +56,11 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
         get() = _registerBackToLogin
 
     val authenticationState: LiveData<AuthenticationState> = FirebaseUserLiveData(mFirebaseAuth).map { user ->
+        Log.i("ooooooo","1")
+
         if (user != null) {
             if (user.isEmailVerified) {
+                Log.i("ooooooo","1")
                 val adminsDR = mFirebaseDatabase.getReference().child("admins").child(user.uid)
                 managersDR = mFirebaseDatabase.getReference().child("managers").child(user.getUid())
                 adminsDR.addListenerForSingleValueEvent(valueEventListener(user))
@@ -64,6 +69,8 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
                 AuthenticationState.NOTEMAILVERIFIED
             }
         } else {
+            Log.i("ooooooo","1")
+
             _toastMessage.value = "signed out"
             AuthenticationState.UNAUTHENTICATED
 

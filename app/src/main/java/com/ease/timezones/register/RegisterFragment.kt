@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 class RegisterFragment : Fragment() {
     private lateinit var binding: FragmentRegisterBinding
     private val viewModel: SplashScreenViewModel by lazy {
-        ViewModelProvider(this.requireActivity()).get(SplashScreenViewModel::class.java)
+        ViewModelProvider(this).get(SplashScreenViewModel::class.java)
     }
 
     override fun onCreateView(

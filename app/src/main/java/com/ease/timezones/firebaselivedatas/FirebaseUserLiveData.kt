@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ease.timezones.splashscreen
+package com.ease.timezones.firebaselivedatas
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -37,19 +37,20 @@ class FirebaseUserLiveData(val f: FirebaseAuth) : LiveData<FirebaseUser?>() {
         // point into the Firebase Authentication SDK the app is using.
         // With an instance of the FirebaseAuth class, you can now query for the current user.
         Log.i("nnnnnnnnnn", "howhow")
-        if (authHasBeenRegistered) {
-            Log.i("nnnnnnnnnn", "howhow1")
+//        if (authHasBeenRegistered) {
+////            Log.i("nnnnnnnnnn", "howhow1")
 
             value = firebaseAuth.currentUser
 
-        } else {
-            authHasBeenRegistered = true
-        }
+//        } else {
+//            authHasBeenRegistered = true
+//        }
     }
 
     // When this object has an active observer, start observing the FirebaseAuth state to see if
     // there is currently a logged in user.
     override fun onActive() {
+        Log.i("qwwerty","gg")
         f.addAuthStateListener(authStateListener)
     }
 

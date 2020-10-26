@@ -5,6 +5,8 @@ import android.content.Context.MODE_PRIVATE
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import com.ease.timezones.models.DisplayedUser
+import com.ease.timezones.models.User
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,5 +58,28 @@ object Utils {
 
     fun isEmptyOrNull(livedata: MutableLiveData<String>): Boolean {
         return livedata.value == null || livedata.value == ""
+    }
+     fun Map<String, User>.asDisplayedUsers(): MutableList<DisplayedUser> {
+        val displayedUsers= mutableListOf<DisplayedUser>()
+         forEach { (key, value) ->
+             val displayedUser= DisplayedUser(
+                 value.displayName,
+                 key,
+                 value.email,
+                 value.password
+             )
+             displayedUsers.add(displayedUser)
+          }
+//        for ((key, value) in this) {
+//            val displayedUser= DisplayedUser(
+//                value.displayName,
+//                key,
+//                value.email,
+//                value.password
+//            )
+//            displayedUsers.add(displayedUser)
+//        }
+        return displayedUsers
+
     }
 }

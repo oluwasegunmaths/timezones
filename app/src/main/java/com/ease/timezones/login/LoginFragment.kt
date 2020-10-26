@@ -43,7 +43,7 @@ import com.google.firebase.database.*
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private val viewModel: SplashScreenViewModel by lazy {
-        ViewModelProvider(this.requireActivity()).get(SplashScreenViewModel::class.java)
+        ViewModelProvider(this).get(SplashScreenViewModel::class.java)
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

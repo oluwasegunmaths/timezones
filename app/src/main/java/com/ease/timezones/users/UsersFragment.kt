@@ -1,7 +1,8 @@
 package com.ease.timezones.users
 
-import UserAdapter
+import com.ease.timezones.users.UserAdapter
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -30,12 +31,24 @@ class UsersFragment : Fragment() {
         setUpRecycler()
         setUpFAB()
         setHasOptionsMenu(true)
-        viewModel.attachChatDatabaseReadListener()
-        viewModel.displayedUsers.observe(viewLifecycleOwner, Observer {
+//        viewModel.attachChatDatabaseReadListener()
+        Log.i("ooooooo","e")
+
+        viewModel.users.observe(viewLifecycleOwner,{
+            Log.i("ooooooo","f")
+              if(it==null||it.isEmpty()){
+                  Log.i("ooooooo","hhhhhhh")
+
+              }
             adapter.setPatients(it)
-            adapter.notifyItemInserted(it.size)
+            Log.i("ooooooo","g")
 
         })
+//        viewModel.displayedUsers.observe(viewLifecycleOwner, Observer {
+//            adapter.setPatients(it)
+//            adapter.notifyItemInserted(it.size)
+//
+//        })
         return binding.root
     }
 
@@ -52,7 +65,7 @@ class UsersFragment : Fragment() {
 
     private fun setUpRecycler() {
         binding.recycler.layoutManager = LinearLayoutManager(this.requireContext())
-        adapter = UserAdapter(this.requireContext(), object : UserAdapter.ItemClickListener {
+        adapter = UserAdapter( object : UserAdapter.ItemClickListener {
             override fun onItemClick(user: DisplayedUser?) {
                 user?.run {
                     findNavController().navigate(

@@ -11,13 +11,14 @@ data class User(
 ) : Parcelable {
     constructor() : this(null, null, null)
 
-    fun asDisplayedUser(id: String): DisplayedUser {
-        return DisplayedUser(
-            displayName = displayName,
-            authId = id,
-            email = email,
-            password = password
-        )
+//    fun asDisplayedUser(id: String): DisplayedUser {
+//        return DisplayedUser(
+//            displayName = displayName,
+//            authId = id,
+//            email = email,
+//            password = password
+//        )
+//
+//    }
 
-    }
 }
