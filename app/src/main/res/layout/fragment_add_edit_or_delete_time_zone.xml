@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Name"
+            android:hint="Choose a name for your time zone"
             app:layout_constraintBottom_toTopOf="@+id/location_spinner"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,9 @@
 
         <Spinner
             android:id="@+id/location_spinner"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:visibility="invisible"
+            android:clickable="false"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@+id/textView"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,5 +57,28 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_spinner_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/location_spinner"
+            app:layout_constraintEnd_toEndOf="@+id/location_spinner"
+            app:layout_constraintStart_toStartOf="@+id/location_spinner"
+            app:layout_constraintTop_toTopOf="@+id/location_spinner" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton_delete_timezone"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_gravity="bottom|end"
+
+            app:srcCompat="@drawable/ic_delete" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

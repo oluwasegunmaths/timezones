@@ -56,7 +56,6 @@
                 android:id="@+id/time_zone_time_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:format12Hour="dd-MMM-yyyy:hh:mm:ss a"
 
                 app:layout_constraintBottom_toTopOf="@+id/time_zone_offset_tv"
                 app:layout_constraintEnd_toEndOf="parent"

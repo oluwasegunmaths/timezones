@@ -21,7 +21,7 @@
 
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar_layman"
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
@@ -42,6 +42,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
             android:layout_height="match_parent">
 
             <TextView

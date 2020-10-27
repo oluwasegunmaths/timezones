@@ -1,9 +1,7 @@
 package com.ease.timezones.selectedtimezones
 
+import android.content.Context
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.view.View.GONE
@@ -16,16 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.DisplayedTimezones.TimeZonesAdapter
 import com.ease.timezones.R
-import com.ease.timezones.Utils.ROLE
 import com.ease.timezones.databinding.FragmentTimeZoneBinding
 import com.ease.timezones.models.DisplayedTime
 import com.ease.timezones.models.SelectedTime
-import com.ease.timezones.users.UserListViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.functions.FirebaseFunctions
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class TimeZoneFragment : Fragment() {
@@ -56,17 +49,17 @@ class TimeZoneFragment : Fragment() {
 
         setUpFAB()
         setHasOptionsMenu(true)
-        viewModel.timeZones.observe(viewLifecycleOwner,{
-            Log.i("ooooooo","f")
-            if(it==null||it.isEmpty()){
-                Log.i("ooooooo","hhhhhhh")
+        viewModel.timeZones.observe(viewLifecycleOwner, {
+            Log.i("ooooooo", "f")
+            if (it == null || it.isEmpty()) {
+                Log.i("ooooooo", "hhhhhhh")
 
             }
             adapter.setDisplayedTimes(it)
-            Log.i("ooooooo","g")
+            Log.i("ooooooo", "g")
 
         })
-        viewModel.searchText.observe(viewLifecycleOwner,{
+        viewModel.searchText.observe(viewLifecycleOwner, {
             adapter.setSearchText(it)
 
         })
@@ -91,9 +84,11 @@ class TimeZoneFragment : Fragment() {
 //            WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //            WindowManager.LayoutParams.FLAG_FULLSCREEN
 //        )
-//        val toolbar = binding.toolbarLayman
-//
-//        (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
+        val toolbar = binding.toolbar
+
+        (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
+//        val contextThemeWrapper: Context = ContextThemeWrapper(activity, R.style.Theme_TimeZones_NoActionBar)
+//         binding.lifecycleOwne
         return binding.root
     }
 
@@ -104,7 +99,9 @@ class TimeZoneFragment : Fragment() {
         if(uid==null){
             return
         }
-        viewModel =ViewModelProvider(this,ViewModelFactory(requireActivity().application,uid!!)).get(TimeZoneViewModel::class.java)
+        viewModel =ViewModelProvider(this, ViewModelFactory(requireActivity().application, uid!!)).get(
+            TimeZoneViewModel::class.java
+        )
 
     }
 
@@ -206,6 +203,16 @@ class TimeZoneFragment : Fragment() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        val supportActionBar: ActionBar? = (requireActivity() as AppCompatActivity).supportActionBar
+//        if (supportActionBar != null) supportActionBar.()
+//        val toolbar = binding.toolbarLayman
+
+//        (activity as AppCompatActivity?)?.setTheme(R.style.Theme_TimeZones_NoActionBar)
+
     }
 
 

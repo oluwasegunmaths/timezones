@@ -26,6 +26,7 @@ class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
     override fun onInactive() {
         Log.d(LOG_TAG, "onInactive")
         query.removeEventListener(listener)
+        dataSnapShotList.clear()
     }
 
 //    private inner class MyValueEventListener : ValueEventListener {

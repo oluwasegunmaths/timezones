@@ -38,7 +38,7 @@ class FirebaseUserLiveData(val f: FirebaseAuth) : LiveData<FirebaseUser?>() {
         // With an instance of the FirebaseAuth class, you can now query for the current user.
         Log.i("nnnnnnnnnn", "howhow")
 //        if (authHasBeenRegistered) {
-////            Log.i("nnnnnnnnnn", "howhow1")
+//            Log.i("nnnnnnnnnn", "howhow1")
 
             value = firebaseAuth.currentUser
 

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.ease.timezones.Utils
 import com.ease.timezones.databinding.TimezoneListItemBinding
 import com.ease.timezones.models.DisplayedTime
 import kotlinx.coroutines.CoroutineScope
@@ -73,9 +74,10 @@ class TimeZonesAdapter internal constructor(
 
         fun bind(displayedTime: DisplayedTime) {
             binding.timeZoneNameTv.setText(displayedTime.name)
-            binding.timeZoneLocTv.setText(displayedTime.location)
+            binding.timeZoneLocTv.setText(Utils.convertToViewerFriendlyTimeZone(displayedTime.location))
             binding.timeZoneTimeTv.setTimeZone(displayedTime.location)
-            binding.timeZoneTimeTv.format12Hour="dd-MMM-yyyy:hh:mm:ss a"
+            binding.timeZoneTimeTv.format12Hour="hh:mm:ss a"
+            binding.timeZoneTimeTv.format24Hour=null
             binding.timeZoneTimeTv.setText(displayedTime.currentTime)
             binding.timeZoneOffsetTv.setText(displayedTime.browserOffset)
             if (searchText!=null) {

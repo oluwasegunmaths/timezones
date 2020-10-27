@@ -4,6 +4,7 @@ import com.ease.timezones.users.UserAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -49,6 +50,8 @@ class UsersFragment : Fragment() {
 //            adapter.notifyItemInserted(it.size)
 //
 //        })
+        val toolbar = binding.toolbar
+        (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
         return binding.root
     }
 

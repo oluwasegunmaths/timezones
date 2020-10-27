@@ -1,6 +1,7 @@
 package com.ease.timezones.splashscreen
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -52,10 +53,13 @@ class SplashScreenFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+          Log.i("pppppppp","1")
             when (authenticationState) {
                 SplashScreenViewModel.AuthenticationState.UNAUTHENTICATED -> {
+                    Log.i("pppppppp","2")
+
                     findNavController().navigate(SplashScreenFragmentDirections.actionSplashScreenFragmentToLoginFragment())
-                    viewModel.authenticationState.removeObservers(this)
+//                    viewModel.authenticationState.removeObservers(this)
 
                 }
                 SplashScreenViewModel.AuthenticationState.NOTEMAILVERIFIED -> {
@@ -66,7 +70,7 @@ class SplashScreenFragment : Fragment() {
                     ).show()
                     findNavController().navigate(SplashScreenFragmentDirections.actionSplashScreenFragmentToLoginFragment())
 
-                    viewModel.authenticationState.removeObservers(this)
+//                    viewModel.authenticationState.removeObservers(this)
                 }
 
             }
@@ -84,6 +88,8 @@ class SplashScreenFragment : Fragment() {
     }
 
     private fun openAppAsNormalUser(uid: String) {
+        Log.i("pppppppp","3")
+
         findNavController().navigate(
                 SplashScreenFragmentDirections.actionSplashScreenFragmentToTimeZoneFragment(
                         uid
@@ -92,6 +98,8 @@ class SplashScreenFragment : Fragment() {
     }
 
     private fun openAppAsAdmin(isAdmin: Boolean) {
+        Log.i("pppppppp","4")
+
         findNavController().navigate(
                 SplashScreenFragmentDirections.actionSplashScreenFragmentToUsersFragment(
                         isAdmin

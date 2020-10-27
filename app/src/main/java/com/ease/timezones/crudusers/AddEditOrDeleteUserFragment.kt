@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -53,9 +55,37 @@ class AddEditOrDeleteUserFragment : Fragment() {
             binding.buttonShowUserTimezones.visibility = View.VISIBLE
             setUpUserTimeZoneButtonListener()
         }
+        binding.floatingActionButtonDeleteUser.show()
+        binding.floatingActionButtonDeleteUser.setOnClickListener {
+          showWarningDialog()
+        }
 
     }
+    private fun showWarningDialog() {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Are you sure you want to permanently delete this user?")
+            .setPositiveButton("Ok") { dialog, id ->
+                deleteUser()
+                dialog.dismiss()
+            } .setNegativeButton("Cancel") { dialog, id ->
+                dialog.dismiss()
+            }
+        val alert = dialogBuilder.create()
+        alert.setTitle("Warning")
+        alert.show()
+    }
 
+    private fun deleteUser() {
+        val key = user.authId
+        userDR.child(key).removeValue().addOnCompleteListener {
+            if(it.isSuccessful){
+                Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }else{
+                Toast.makeText(requireContext(), "Unable to delete user due to ${it.exception?.message?:"an unknown problem"}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     private fun setUpUserTimeZoneButtonListener() {
         binding.buttonShowUserTimezones.setOnClickListener {
             findNavController().navigate(
@@ -73,7 +103,7 @@ class AddEditOrDeleteUserFragment : Fragment() {
         binding.buttonSaveUser.setOnClickListener {
             if (::user.isInitialized) {
                 val key = user.authId
-                key?.let {
+                key.let {
                     userDR.child(it).setValue(
                         User(
                             binding.edittextUsername.text.toString(),
@@ -106,24 +136,24 @@ class AddEditOrDeleteUserFragment : Fragment() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (::user.isInitialized) inflater.inflate(R.menu.menu_time_zone_detail, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_delete) {
-//            this::mFirebaseDatabase.isInitialized
-            val key = user.authId
-            userDR.child(key).removeValue()
-//            key?.let {
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        if (::user.isInitialized) inflater.inflate(R.menu.menu_time_zone_detail, menu)
+//        super.onCreateOptionsMenu(menu, inflater)
+//    }
 //
-//            }
-//            userDR?.child(key)?.removeValue()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        if (item.itemId == R.id.action_delete) {
+////            this::mFirebaseDatabase.isInitialized
+//            val key = user.authId
+//            userDR.child(key).removeValue()
+////            key?.let {
+////
+////            }
+////            userDR?.child(key)?.removeValue()
+//            return true
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
