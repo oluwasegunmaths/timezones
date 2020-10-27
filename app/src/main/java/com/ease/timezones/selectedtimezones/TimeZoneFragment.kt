@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.DisplayedTimezones.TimeZonesAdapter
 import com.ease.timezones.R
@@ -28,6 +29,7 @@ class TimeZoneFragment : Fragment() {
     private lateinit var mFirebaseDatabase: FirebaseDatabase
     private lateinit var mFirebaseAuth: FirebaseAuth
     private var uid: String? = null
+    private val args: TimeZoneFragmentArgs by navArgs()
 
     private var userDR: DatabaseReference? = null
     override fun onCreateView(
@@ -95,13 +97,16 @@ class TimeZoneFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        uid = TimeZoneFragmentArgs.fromBundle(requireArguments()).authId
-        if(uid==null){
+
+//        uid = TimeZoneFragmentArgs.fromBundle(requireArguments()).authId
+        uid = args.authId
+        if (uid == null) {
             return
         }
-        viewModel =ViewModelProvider(this, ViewModelFactory(requireActivity().application, uid!!)).get(
-            TimeZoneViewModel::class.java
-        )
+        viewModel =
+            ViewModelProvider(this, ViewModelFactory(requireActivity().application, uid!!)).get(
+                TimeZoneViewModel::class.java
+            )
 
     }
 

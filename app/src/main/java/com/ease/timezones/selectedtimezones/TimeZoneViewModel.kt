@@ -21,18 +21,17 @@ class TimeZoneViewModel(app: Application,val uid:String) : AndroidViewModel(app)
     private var isSearching: Boolean = false
     val mFirebaseDatabase = FirebaseDatabase.getInstance()
     val mFirebaseAuth = FirebaseAuth.getInstance()
-    var displayedTimeZonesCache:MutableList<DisplayedTime>? =null
+    var displayedTimeZonesCache: MutableList<DisplayedTime>? = null
     private val _searchText = MutableLiveData<String>()
-    val searchText: LiveData<String>
-        get() = _searchText
+    val searchText: LiveData<String> = _searchText
+//        get() = _searchText
 
 
-
-
-    private val databaseReference =mFirebaseDatabase.getReference("/timezones/$uid")
+    private val databaseReference = mFirebaseDatabase.getReference("/timezones/$uid")
 
     private val liveData = FirebaseQueryLiveData(databaseReference)
-    val timeZones: MediatorLiveData<MutableList<DisplayedTime>> = MediatorLiveData<MutableList<DisplayedTime>>()
+    val timeZones: MediatorLiveData<MutableList<DisplayedTime>> =
+        MediatorLiveData<MutableList<DisplayedTime>>()
 
     init {
         FirebaseFunctions.getInstance().getHttpsCallable("getTime")
