@@ -1,6 +1,5 @@
 package com.ease.timezones.selectedtimezones
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -30,6 +29,7 @@ class TimeZoneFragment : Fragment() {
     private lateinit var mFirebaseAuth: FirebaseAuth
     private var uid: String? = null
     private val args: TimeZoneFragmentArgs by navArgs()
+    private var shoulShowSearchIcon:Boolean=false
 
     private var userDR: DatabaseReference? = null
     override fun onCreateView(
@@ -54,7 +54,19 @@ class TimeZoneFragment : Fragment() {
         viewModel.timeZones.observe(viewLifecycleOwner, {
             Log.i("ooooooo", "f")
             if (it == null || it.isEmpty()) {
-                Log.i("ooooooo", "hhhhhhh")
+                promptUserToAddNewTimeZone()
+                return@observe
+//                Log.i("ooooooo", "hhhhhhh")
+
+            }
+            if (!shoulShowSearchIcon) {
+                shoulShowSearchIcon=true
+                requireActivity().invalidateOptionsMenu()
+            }
+            if(binding.recycler.visibility!= VISIBLE){
+                binding.recycler.visibility= VISIBLE
+                binding.textViewTimezoneMessage.visibility= GONE
+                binding.progressBarTimezones.visibility= GONE
 
             }
             adapter.setDisplayedTimes(it)
@@ -65,6 +77,20 @@ class TimeZoneFragment : Fragment() {
             adapter.setSearchText(it)
 
         })
+        viewModel.loadingStatus.observe(viewLifecycleOwner, {
+            when(it){
+                is TimeZoneViewModel.Status.Loading -> showProgresssBarAndLoadingText()
+                is TimeZoneViewModel.Status.Loaded -> hideProgressBarAndLoadingText()
+                is TimeZoneViewModel.Status.Error -> showErrorLoading(it.message)
+                is TimeZoneViewModel.Status.NoTimeZones -> promptUserToAddNewTimeZone()
+
+
+            }
+
+//            adapter.setSearchText(it)
+
+        })
+
 //        FirebaseFunctions.getInstance().getHttpsCallable("getTime")
 //            .call().addOnSuccessListener { httpsCallableResult ->
 //                val timestamp = httpsCallableResult.data as Long
@@ -92,6 +118,40 @@ class TimeZoneFragment : Fragment() {
 //        val contextThemeWrapper: Context = ContextThemeWrapper(activity, R.style.Theme_TimeZones_NoActionBar)
 //         binding.lifecycleOwne
         return binding.root
+    }
+
+    private fun promptUserToAddNewTimeZone() {
+        binding.recycler.visibility= GONE
+        binding.progressBarTimezones.visibility= GONE
+        binding.textViewTimezoneMessage.visibility= VISIBLE
+        if (viewModel.isSearching) {
+            binding.textViewTimezoneMessage.text= "No timezones match your search"
+        } else {
+            binding.textViewTimezoneMessage.text= "No timezones yet.\nClick on the button at bottom right to add a timezone"
+
+        }
+    }
+
+    private fun hideProgressBarAndLoadingText() {
+        binding.progressBarTimezones.visibility= GONE
+        binding.textViewTimezoneMessage.visibility= GONE
+        binding.recycler.visibility= VISIBLE
+
+    }
+
+    private fun showErrorLoading(message: String) {
+        binding.progressBarTimezones.visibility= GONE
+        binding.textViewTimezoneMessage.visibility= VISIBLE
+        binding.textViewTimezoneMessage.text= message
+
+    }
+
+    private fun showProgresssBarAndLoadingText() {
+        binding.progressBarTimezones.visibility= VISIBLE
+        binding.textViewTimezoneMessage.visibility= VISIBLE
+        binding.textViewTimezoneMessage.text= "Loading"
+
+
     }
 
 
@@ -183,6 +243,11 @@ class TimeZoneFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.action_search).isVisible = shoulShowSearchIcon
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_signout) {
             FirebaseAuth.getInstance().signOut()
@@ -208,16 +273,6 @@ class TimeZoneFragment : Fragment() {
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        val supportActionBar: ActionBar? = (requireActivity() as AppCompatActivity).supportActionBar
-//        if (supportActionBar != null) supportActionBar.()
-//        val toolbar = binding.toolbarLayman
-
-//        (activity as AppCompatActivity?)?.setTheme(R.style.Theme_TimeZones_NoActionBar)
-
     }
 
 

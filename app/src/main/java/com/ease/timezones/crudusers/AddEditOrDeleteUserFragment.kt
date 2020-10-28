@@ -10,6 +10,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
+import com.ease.timezones.Utils.endsProperly
+import com.ease.timezones.Utils.isEmptyOrNull
 import com.ease.timezones.databinding.FragmentAddEditOrDeleteUserBinding
 import com.ease.timezones.models.DisplayedUser
 import com.ease.timezones.models.User
@@ -21,6 +23,7 @@ class AddEditOrDeleteUserFragment : Fragment() {
     private lateinit var mFirebaseDatabase: FirebaseDatabase
     private lateinit var userDR: DatabaseReference
     private lateinit var user: DisplayedUser
+    private var tryingToCommunicate: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +87,9 @@ class AddEditOrDeleteUserFragment : Fragment() {
             }else{
                 Toast.makeText(requireContext(), "Unable to delete user due to ${it.exception?.message?:"an unknown problem"}", Toast.LENGTH_SHORT).show()
             }
+        }.addOnCanceledListener {
+            Toast.makeText(requireContext(), "Delete was cancelled", Toast.LENGTH_SHORT).show()
+
         }
     }
     private fun setUpUserTimeZoneButtonListener() {
@@ -101,36 +107,87 @@ class AddEditOrDeleteUserFragment : Fragment() {
         Log.i("aaaaaa", "0")
 
         binding.buttonSaveUser.setOnClickListener {
-            if (::user.isInitialized) {
-                val key = user.authId
-                key.let {
-                    userDR.child(it).setValue(
-                        User(
-                            binding.edittextUsername.text.toString(),
-                            binding.edittextUserEmail.text.toString(),
-                            binding.edittextUserPassword.text.toString()
-                        )
-                    )
-                }
+            if (!tryingToCommunicate) {
+                if (::user.isInitialized) {
 
-            } else {
-                Log.i("aaaaaa", "1")
-                userDR.push().setValue(
-                    User(
-                        binding.edittextUsername.text.toString(),
-                        binding.edittextUserEmail.text.toString(),
-                        binding.edittextUserPassword.text.toString()
-                    )
-                ).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        findNavController().popBackStack()
+                    if (!isEmptyOrNull(binding.edittextUsername.text.toString())&&!isEmptyOrNull(binding.edittextUserPassword.text.toString())) {
+                        if (binding.edittextUserPassword.text.toString().length>5) {
+                            val key = user.authId
+                            key.let {
+                                tryingToCommunicate=true
+
+                                userDR.child(it).setValue(
+                                    User(
+                                        binding.edittextUsername.text.toString(),
+                                        binding.edittextUserEmail.text.toString(),
+                                        binding.edittextUserPassword.text.toString()
+                                    )
+                                ).addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        findNavController().popBackStack()
+                                        Toast.makeText(requireContext(), "Update was successful", Toast.LENGTH_SHORT).show()
+
+                                    } else {
+                                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                                        tryingToCommunicate=false
+
+                                    }
+                                }.addOnCanceledListener {
+                                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                                    tryingToCommunicate=false
+
+                                }
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
+                        Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
 
                     }
-                }.addOnFailureListener {
-                    Log.i("aaaaaa", it.toString())
-                }
 
+                } else {
+                    if (!isEmptyOrNull(binding.edittextUsername.text.toString())&&!isEmptyOrNull(binding.edittextUserPassword.text.toString())
+                            && !isEmptyOrNull(binding.edittextUserEmail.text.toString())) {
+                        if (endsProperly(binding.edittextUserEmail.text.toString())) {
+                            if (binding.edittextUserPassword.text.toString().length>5) {
+                                Log.i("aaaaaa", "1")
+                                tryingToCommunicate=true
+
+                                userDR.push().setValue(
+                                    User(
+                                        binding.edittextUsername.text.toString(),
+                                        binding.edittextUserEmail.text.toString(),
+                                        binding.edittextUserPassword.text.toString()
+                                    )
+                                ).addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        findNavController().popBackStack()
+                                        Toast.makeText(requireContext(), "User creation successful", Toast.LENGTH_SHORT).show()
+
+                                    } else {
+                                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                                        tryingToCommunicate=false
+
+                                    }
+                                }.addOnCanceledListener {
+                                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                                    tryingToCommunicate=false
+
+                                }
+                            } else {
+                                Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
+
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "The email is invalid", Toast.LENGTH_SHORT).show()
+
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
             }
         }
 

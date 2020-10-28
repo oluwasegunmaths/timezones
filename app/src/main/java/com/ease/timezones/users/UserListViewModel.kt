@@ -31,29 +31,38 @@ class UserListViewModel(app: Application) : AndroidViewModel(app) {
 
     private val liveData = FirebaseQueryLiveData(databaseReference)
      val users: MediatorLiveData<MutableList<DisplayedUser>> = MediatorLiveData<MutableList<DisplayedUser>>()
+    sealed class Status() {
+        class Loading : Status()
+        class Loaded : Status()
+        class Error(val message: String) : Status()
+    }
 
+    private val _loadingStatus = MutableLiveData<Status>()
+    val loadingStatus: LiveData<Status> = _loadingStatus
     init {
         Log.i("ooooooo","a")
-        users.addSource(liveData, Observer {
+        _loadingStatus.value= Status.Loading()
+        users.addSource(liveData) {
             if (it != null) {
-                 viewModelScope.launch {
-                     var list= mutableListOf<DisplayedUser>()
-                     withContext(Dispatchers.IO){
-                         try {
-                             Log.i("ooooooo","b")
-                             for (d in it) {
-                                 val user=d.getValue(User::class.java)
-                                 val key=d.key
-                                 if(user!=null){
-                                     Log.i("ooooooo","x")
-                                     list.add(DisplayedUser(
-                                         user.displayName,
-                                         key?:"",
-                                         user.email,
-                                         user.password
-                                     ))
-                                 }
-                             }
+                viewModelScope.launch {
+                    var list = mutableListOf<DisplayedUser>()
+                    withContext(Dispatchers.IO) {
+                        try {
+                            Log.i("ooooooo", "b")
+                            for (d in it) {
+                                val user = d.getValue(User::class.java)
+
+                                val key = d.key
+                                if (user != null) {
+                                    Log.i("ooooooo", "x")
+                                    list.add(DisplayedUser(
+                                            user.displayName,
+                                            key ?: "",
+                                            user.email,
+                                            user.password
+                                    ))
+                                }
+                            }
 //                                 list=it.map {
 //                                    val user=it.getValue(User::class.java)
 //                                    val key=it.key
@@ -69,28 +78,32 @@ class UserListViewModel(app: Application) : AndroidViewModel(app) {
 //                                        ) ^map
 //                                    }
 //                                }
-                             Log.i("ooooooo","d")
+                            Log.i("ooooooo", "d")
 
 
-                         }
-                         catch (e:Exception){
-                                     Log.i("ooooooo",e.message!!)
+                        } catch (e: Exception) {
+                            _loadingStatus.postValue( Status.Error("Database error"))
 
-                         }
-                     }
-                     Log.i("ooooooo","z")
+//                            Log.i("ooooooo", e.message!!)
 
-                     users.value=list
-                     Log.i("ooooooo","y")
+                        }
+                    }
+                    Log.i("ooooooo", "z")
+                    _loadingStatus.value= Status.Loaded()
 
-                 }
+                    users.value = list
+                    Log.i("ooooooo", "y")
+
+                }
 //                Thread { hotStockLiveData.postValue(dataSnapshot.getValue(HotStock::class.java)) }.start()
             } else {
+                _loadingStatus.value= Status.Error("Error Loading Users")
+
                 users.setValue(null)
             }
-        })
-        users.value=null
-        val t=users.value
+        }
+//        users.value=null
+//        val t=users.value
     }
 
 

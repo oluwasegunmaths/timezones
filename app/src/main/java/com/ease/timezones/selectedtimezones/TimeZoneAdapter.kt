@@ -78,7 +78,7 @@ class TimeZonesAdapter internal constructor(
             binding.timeZoneTimeTv.setTimeZone(displayedTime.location)
             binding.timeZoneTimeTv.format12Hour="hh:mm:ss a"
             binding.timeZoneTimeTv.format24Hour=null
-            binding.timeZoneTimeTv.setText(displayedTime.currentTime)
+//            binding.timeZoneTimeTv.setText(displayedTime.currentTime)
             binding.timeZoneOffsetTv.setText(displayedTime.browserOffset)
             if (searchText!=null) {
                 highlightString(binding.timeZoneNameTv)

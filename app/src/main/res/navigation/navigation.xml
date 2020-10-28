@@ -87,7 +87,8 @@
             app:nullable="true" />
         <action
             android:id="@+id/action_addEditOrDeleteUserFragment_to_timeZoneFragment"
-            app:destination="@id/timeZoneFragment" />
+            app:destination="@id/timeZoneFragment"
+            app:popUpTo="@id/usersFragment" />
         <argument
             android:name="isAdmin"
             app:argType="boolean" />

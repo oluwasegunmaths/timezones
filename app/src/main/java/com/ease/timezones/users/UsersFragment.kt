@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.R
 import com.ease.timezones.databinding.FragmentUsersBinding
 import com.ease.timezones.models.DisplayedUser
+import com.ease.timezones.selectedtimezones.TimeZoneViewModel
 
 
 class UsersFragment : Fragment() {
@@ -50,11 +51,44 @@ class UsersFragment : Fragment() {
 //            adapter.notifyItemInserted(it.size)
 //
 //        })
+        viewModel.loadingStatus.observe(viewLifecycleOwner, {
+            when(it){
+                is UserListViewModel.Status.Loading -> showProgresssBarAndLoadingText()
+                is UserListViewModel.Status.Loaded -> hideProgressBarAndLoadingText()
+                is UserListViewModel.Status.Error -> showErrorLoading(it.message)
+
+
+
+            }
+
+//            adapter.setSearchText(it)
+
+        })
         val toolbar = binding.toolbar
         (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
         return binding.root
     }
 
+    private fun hideProgressBarAndLoadingText() {
+        binding.progressBarUserList.visibility= View.GONE
+        binding.textViewUserListMessage.visibility= View.GONE
+
+    }
+
+    private fun showErrorLoading(message: String) {
+        binding.progressBarUserList.visibility= View.GONE
+        binding.textViewUserListMessage.visibility= View.VISIBLE
+        binding.textViewUserListMessage.text= message
+
+    }
+
+    private fun showProgresssBarAndLoadingText() {
+        binding.progressBarUserList.visibility= View.VISIBLE
+        binding.textViewUserListMessage.visibility= View.VISIBLE
+        binding.textViewUserListMessage.text= "Loading"
+
+
+    }
     private fun setUpFAB() {
         binding.floatingActionButton.setOnClickListener { v ->
             findNavController().navigate(

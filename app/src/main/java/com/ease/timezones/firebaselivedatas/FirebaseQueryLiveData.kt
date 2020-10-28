@@ -8,8 +8,11 @@ import com.google.firebase.database.*
 //https://firebase.googleblog.com/2017/12/using-android-architecture-components.html
 class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
     private val query: Query
-    private val listener: MyChildEventListener = MyChildEventListener()
-    private  val dataSnapShotList= mutableListOf<DataSnapshot>()
+    private val childEventListener: MyChildEventListener = MyChildEventListener()
+    private val valueEventListener: ValueEventListener = MyValueEventListener()
+
+    private  var queryHasChanged=false
+    internal  val dataSnapShotList= mutableListOf<DataSnapshot>()
     constructor(query: Query) {
         this.query = query
     }
@@ -20,28 +23,45 @@ class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
 
     override fun onActive() {
         Log.d(LOG_TAG, "onActive")
-        query.addChildEventListener(listener)
+        query.addValueEventListener(valueEventListener)
+//        query.addChildEventListener(childEventListener)
+
     }
 
     override fun onInactive() {
         Log.d(LOG_TAG, "onInactive")
-        query.removeEventListener(listener)
+        query.removeEventListener(valueEventListener)
+
+        query.removeEventListener(childEventListener)
         dataSnapShotList.clear()
     }
 
-//    private inner class MyValueEventListener : ValueEventListener {
-//        override fun onDataChange(dataSnapshot: DataSnapshot) {
-//            value = dataSnapshot
-//        }
-//
-//        override fun onCancelled(databaseError: DatabaseError) {
-//            Log.e(
-//                LOG_TAG,
-//                "Can't listen to query $query", databaseError.toException()
-//            )
-//        }
-//    }
-    private inner class MyChildEventListener:  ChildEventListener {
+    private inner class MyValueEventListener : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (!queryHasChanged) {
+
+                if(!dataSnapshot.exists()){
+                    value=null
+                }else{
+                    queryHasChanged = true
+
+                    Log.i(
+                        "rrrrrrrrr",
+                        "Can't listen to query $query"
+                    )
+                    query.addChildEventListener(childEventListener)
+                }
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.e(
+                LOG_TAG,
+                "Can't listen to query $query", databaseError.toException()
+            )
+        }
+    }
+    private  inner class MyChildEventListener:  ChildEventListener {
                     override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
                         dataSnapShotList.add(dataSnapshot)
                         value = dataSnapShotList

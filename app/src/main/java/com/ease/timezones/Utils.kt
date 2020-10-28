@@ -55,9 +55,9 @@ object Utils {
     fun endsProperly(email: String): Boolean {
         if (email.length < 5) return false
 //        Log.d(TAG, "isValidDomain: verifying email has correct domain: $email")
-        val domain = email.substring(email.length - 4).toLowerCase()
+        val domain = email.substring(email.length - 4).toLowerCase(Locale.ROOT)
 //        Log.d(TAG, "isValidDomain: users domain: $domain")
-        return domain == PROPER_ENDING
+        return domain.equals( PROPER_ENDING)
     }
 
     fun showToast(message: String, context: Context) {

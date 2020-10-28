@@ -57,7 +57,6 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
 
     val authenticationState: LiveData<AuthenticationState> = FirebaseUserLiveData(mFirebaseAuth).map { user ->
         Log.i("ooooooo","1")
-
         if (user != null) {
             if (user.isEmailVerified) {
                 Log.i("ooooooo","1")
