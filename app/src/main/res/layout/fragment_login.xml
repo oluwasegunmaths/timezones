@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewModel"
             type="com.ease.timezones.splashscreen.SplashScreenViewModel" />
@@ -16,43 +15,84 @@
         android:layout_height="match_parent"
         tools:context=".auth.LogInActivity">
 
+        <TextView
+            android:id="@+id/login_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/account_login"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/email_signin_edittext"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/email_signin_edittext"
+            android:text="@string/email"
+            app:layout_constraintBottom_toTopOf="@+id/email_signin_edittext"
+            app:layout_constraintStart_toStartOf="@+id/email_signin_edittext" />
+
         <EditText
             android:id="@+id/email_signin_edittext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:drawableStart="@drawable/ic_email"
+
+            android:drawablePadding="5dp"
             android:ems="10"
             android:inputType="textEmailAddress"
+            android:singleLine="true"
             android:text="@={viewModel._emailText}"
 
+            app:layout_constraintBottom_toTopOf="@+id/email_signin_password_edittext"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/login_title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/email_signin_password_edittext"
+            android:text="@string/password"
+            app:layout_constraintBottom_toTopOf="@+id/email_signin_password_edittext"
+            app:layout_constraintStart_toStartOf="@+id/email_signin_password_edittext" />
 
         <EditText
             android:id="@+id/email_signin_password_edittext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:ems="10"
-            android:text="@={viewModel._passwordText}"
-
+            android:drawableStart="@drawable/ic_password"
+            android:drawablePadding="5dp"
             android:inputType="textPassword"
+            android:singleLine="true"
+            android:text="@={viewModel._passwordText}"
+            app:layout_constraintBottom_toTopOf="@+id/signin_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/email_signin_edittext" />
 
         <Button
             android:id="@+id/signin_button"
+            style="@style/buttonStyle"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_marginTop="64dp"
-            android:text="Sign in"
             android:onClick="@{()->viewModel.signIn()}"
+            android:text="@string/sign_in"
 
+            app:layout_constraintBottom_toTopOf="@+id/register_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/reset_password" />
+            app:layout_constraintTop_toBottomOf="@+id/email_signin_password_edittext" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -79,11 +119,14 @@
 
         <Button
             android:id="@+id/register_button"
+            style="@style/buttonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Register as new user"
+            android:text="@string/register_as_a_new_user"
+            app:layout_constraintBottom_toTopOf="@+id/or_textview"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/signin_button" />
 
@@ -92,17 +135,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="OR"
+            style="@style/wordStyle"
+
+            android:text="@string/or"
+            app:layout_constraintBottom_toTopOf="@+id/Google_login_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/progressBar" />
+            app:layout_constraintTop_toBottomOf="@+id/register_button" />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/Google_login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/or_textview" />
 

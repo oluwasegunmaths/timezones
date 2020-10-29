@@ -39,6 +39,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.fragment_add_edit_or_delete_time_zone.view.*
+import kotlinx.android.synthetic.main.fragment_add_edit_or_delete_user.view.*
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding

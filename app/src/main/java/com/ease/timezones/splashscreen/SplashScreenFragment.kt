@@ -13,8 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
-import com.ease.timezones.Utils.isThereConnection
+import com.ease.timezones.Utils
+import com.ease.timezones.Utils.isInternetAvailable
 import com.ease.timezones.databinding.FragmentSplashScreenBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class SplashScreenFragment : Fragment() {
@@ -33,21 +37,34 @@ class SplashScreenFragment : Fragment() {
         binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_splash_screen, container, false
         )
+        binding.buttonCheckForInternet.setOnClickListener {
+            checkForInternetConnection()
+        }
         checkForInternetConnection()
         return binding.root
     }
 
     private fun checkForInternetConnection() {
         //check if user is connected
-        if (isThereConnection()) {
-            observeViewModel()
-        } else {
-            Toast.makeText(
-                    requireContext(),
-                    "Network required to use app",
-                    Toast.LENGTH_LONG
-            ).show()
-//            makeSignInButtonVisible()
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = isInternetAvailable()
+
+            if (isConnected) {
+                binding.progressBarSplashScreen.visibility = View.VISIBLE
+                observeViewModel()
+                binding.buttonCheckForInternet.visibility = View.GONE
+
+            } else {
+                binding.progressBarSplashScreen.visibility = View.GONE
+                binding.textViewSplashScreen.text = "Network required to use app"
+                Toast.makeText(
+                        requireContext(),
+                        "Not connected or poor connection",
+                        Toast.LENGTH_LONG
+                ).show()
+                binding.buttonCheckForInternet.visibility = View.VISIBLE
+//            makeTryAgainButtonVisible()
+            }
         }
     }
 

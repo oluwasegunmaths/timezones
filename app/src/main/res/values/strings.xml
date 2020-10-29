@@ -1,7 +1,30 @@
 <resources>
     <string name="app_name">TimeZones</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="didnt_get_link">Didn\'t get link?</string>
+    <string name="welcome">Welcome</string>
+    <string name="try_again">Try again</string>
+    <string name="add_new_time_zone">Add new Time Zone</string>
+    <string name="search_for_timezones">Search for Timezones</string>
+    <string name="add_new_user">Add new user</string>
+    <string name="or">OR</string>
+    <string name="search">Search</string>
+    <string name="sign_out">Sign out</string>
+    <string name="no_username">No username</string>
+    <string name="create_a_new_account">Create A New Account</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="email_adddress">Email Adddress</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="register">Register</string>
+    <string name="account_login">Account Login</string>
+    <string name="sign_in">Sign in</string>
+    <string name="register_as_a_new_user">Register as a new user</string>
+    <string name="add_a_timezone">Add A Timezone</string>
+    <string name="choose_a_name_for_your_time_zone">Choose a name for your time zone</string>
+    <string name="click_here_to_select_location">Click here to select location</string>
+    <string name="delete_timezone">Delete timezone</string>
+    <string name="save">Save</string>
+    <string name="delete_user">Delete user</string>
+    <string name="username">Username</string>
 </resources>

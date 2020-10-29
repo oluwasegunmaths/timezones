@@ -260,7 +260,6 @@ class TimeZoneFragment : Fragment() {
                 binding.toolbarEdittext.visibility = GONE
                 binding.toolbarEdittext.setText("")
                 item.setIcon(R.drawable.ic_search)
-                binding.emptyTextView.visibility = GONE
 
 
             } else {

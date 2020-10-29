@@ -51,9 +51,9 @@ class RegisterFragment : Fragment() {
         })
         viewModel.showLoginProgressBar.observe(viewLifecycleOwner, Observer {
             if (it) {
-                binding.progressBar2.visibility = View.VISIBLE
+                binding.progressBarRegister.visibility = View.VISIBLE
             } else {
-                binding.progressBar2.visibility = View.GONE
+                binding.progressBarRegister.visibility = View.GONE
             }
         })
         return binding.root

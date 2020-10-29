@@ -1,18 +1,25 @@
 package com.ease.timezones.firebaselivedatas
 
+import android.os.Handler
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.google.firebase.database.*
+import kotlinx.coroutines.*
 
 //recommended way of using firebase with mvvm according to the official firebase blog
 //https://firebase.googleblog.com/2017/12/using-android-architecture-components.html
 class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
+    private var listenerRemovePending = false
+    private val firebaseScope = CoroutineScope(Dispatchers.Main)
+
+
     private val query: Query
     private val childEventListener: MyChildEventListener = MyChildEventListener()
     private val valueEventListener: ValueEventListener = MyValueEventListener()
 
-    private  var queryHasChanged=false
-    internal  val dataSnapShotList= mutableListOf<DataSnapshot>()
+    //    private  var queryHasChanged=false
+    internal val dataSnapShotList = mutableListOf<DataSnapshot>()
+
     constructor(query: Query) {
         this.query = query
     }
@@ -23,41 +30,62 @@ class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
 
     override fun onActive() {
         Log.d(LOG_TAG, "onActive")
-        query.addValueEventListener(valueEventListener)
+        if (!listenerRemovePending) {
+            query.addListenerForSingleValueEvent(valueEventListener)
+        } else {
+            if (firebaseScope.isActive) {
+                firebaseScope.cancel()
+            }
+            listenerRemovePending = false
+
+        }
 //        query.addChildEventListener(childEventListener)
 
     }
 
     override fun onInactive() {
         Log.d(LOG_TAG, "onInactive")
-        query.removeEventListener(valueEventListener)
+        listenerRemovePending = true
+        firebaseScope.launch {
+            //this is to prevent unnecessary removal of event listener on device rotation
+            //which prevents unnecessary requerying of the database on orientation change
+            delay(2000)
 
-        query.removeEventListener(childEventListener)
-        dataSnapShotList.clear()
+            if (listenerRemovePending) {
+                query.removeEventListener(valueEventListener)
+
+                query.removeEventListener(childEventListener)
+                dataSnapShotList.clear()
+
+                Log.d(LOG_TAG, "onInactivecom")
+            }
+            listenerRemovePending = false
+        }
     }
 
     private inner class MyValueEventListener : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if (!queryHasChanged) {
+//            if (!queryHasChanged) {
 
-                if(!dataSnapshot.exists()){
-                    value=null
-                }else{
-                    queryHasChanged = true
-
-                    Log.i(
-                        "rrrrrrrrr",
-                        "Can't listen to query $query"
-                    )
-                    query.addChildEventListener(childEventListener)
-                }
+            if (!dataSnapshot.exists()) {
+                value = null
             }
+//                else{
+////                    queryHasChanged = true
+//
+//                    Log.i(
+//                        "rrrrrrrrr",
+//                        "Can't listen to query $query"
+//                    )
+            query.addChildEventListener(childEventListener)
+//                }
+//            }
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
             Log.e(
-                LOG_TAG,
-                "Can't listen to query $query", databaseError.toException()
+                    LOG_TAG,
+                    "Can't listen to query $query", databaseError.toException()
             )
         }
     }
@@ -73,15 +101,33 @@ class FirebaseQueryLiveData : LiveData<MutableList<DataSnapshot>> {
 //                    users.add(it.asDisplayedUser(key))
 //                    _displayedUsers.value = users
 //                }
-            }
+                    }
 
-            override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {}
-            override fun onChildRemoved(dataSnapshot: DataSnapshot) {}
-            override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {}
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("Firebase database", databaseError.message)
+        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
+            var pos = 0;
+
+            for (d in dataSnapShotList) {
+                if (d.key == dataSnapshot.key) {
+                    dataSnapShotList.removeAt(pos)
+                    dataSnapShotList.add(pos, dataSnapshot)
+                    break
+                }
+                pos++;
             }
+            value = dataSnapShotList
+
         }
+
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+            dataSnapShotList.remove(dataSnapshot)
+            value = dataSnapShotList
+        }
+
+        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {}
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.e("Firebase database", databaseError.message)
+        }
+    }
     companion object {
         private const val LOG_TAG = "FirebaseQueryLiveData"
     }

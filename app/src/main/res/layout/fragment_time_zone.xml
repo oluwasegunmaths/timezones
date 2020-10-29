@@ -3,10 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,10 +29,11 @@
                 android:layout_height="wrap_content"
 
                 android:gravity="center_horizontal"
-                android:hint="Search for Patients"
+                android:hint="@string/search_for_timezones"
                 android:inputType="text"
                 android:textAlignment="center"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:ignore="Autofill" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -45,16 +42,6 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
             android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/emptyTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler"
@@ -74,11 +61,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
                 android:layout_marginBottom="16dp"
                 android:clickable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                android:contentDescription="@string/add_new_time_zone"
+                android:focusable="true"
                 app:srcCompat="@android:drawable/ic_input_add" />
 
             <ProgressBar
@@ -96,6 +84,7 @@
                 android:id="@+id/textView_timezone_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/wordStyle"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

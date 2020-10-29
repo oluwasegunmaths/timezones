@@ -105,7 +105,7 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun signIn() {
-        if (!isEmptyOrNull(_emailText) && !isEmptyOrNull(_passwordText)) {
+        if (!isEmptyOrNull(_emailText.value) && !isEmptyOrNull(_passwordText.value)) {
             _showLoginProgressBar.value = true
             mFirebaseAuth.signInWithEmailAndPassword(_emailText.value!!, _passwordText.value!!).addOnCompleteListener { task ->
                 _showLoginProgressBar.value = false
@@ -127,7 +127,7 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
     fun resetPassword() {
-        if (isEmptyOrNull(_emailText)) {
+        if (isEmptyOrNull(_emailText.value)) {
             _toastMessage.value = "Fill in your email"
             return;
         }
@@ -163,7 +163,8 @@ class SplashScreenViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun registerNewUser() {
-        if (!isEmptyOrNull(registerEmailText) && !isEmptyOrNull(registerPasswordText) && !isEmptyOrNull(registerPassWordConfirmationText)) {
+        if (!isEmptyOrNull(registerEmailText.value) && !isEmptyOrNull(registerPasswordText.value)
+                && !isEmptyOrNull(registerPassWordConfirmationText.value)) {
             //check if email ends with '.com'
             if (Utils.endsProperly(registerEmailText.value!!)) {
                 //check if passwords match

@@ -2,12 +2,15 @@ package com.ease.timezones
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.ease.timezones.models.DisplayedUser
 import com.ease.timezones.models.User
-import java.lang.Exception
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.InetAddress
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,46 +60,47 @@ object Utils {
 //        Log.d(TAG, "isValidDomain: verifying email has correct domain: $email")
         val domain = email.substring(email.length - 4).toLowerCase(Locale.ROOT)
 //        Log.d(TAG, "isValidDomain: users domain: $domain")
-        return domain.equals( PROPER_ENDING)
+        return domain.equals(PROPER_ENDING)
     }
 
     fun showToast(message: String, context: Context) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun isThereConnection(): Boolean {
-        return true;
+    fun isEmptyOrNull(string: String?): Boolean {
+        if (string == null || string.equals("")) return true
+        return false;
     }
 
-     fun <T> isEmptyOrNull (livedata:  T?): Boolean {
-         if(livedata==null&&livedata is String){
-             return true
-         }else if(livedata==null){
-             throw Exception("Utils method isemptyornull should only have mutablelivedata of string as parameter")
-         }
-        if(livedata is MutableLiveData<*>) {
-            if (livedata.value is String){
-            return livedata.value == null || livedata.value == ""}
-            else{
-                throw Exception("Utils method isemptyornull should only have mutablelivedata of string as parameter")
-            }
-        }else if(livedata is String){
-            return  livedata==null||livedata.equals("")
-        }else{
-            throw Exception("Utils method isemptyornull should only have mutablelivedata or string parameters")
-        }
-
-    }
-     fun Map<String, User>.asDisplayedUsers(): MutableList<DisplayedUser> {
-        val displayedUsers= mutableListOf<DisplayedUser>()
-         forEach { (key, value) ->
-             val displayedUser= DisplayedUser(
-                 value.displayName,
-                 key,
-                 value.email,
-                 value.password
-             )
-             displayedUsers.add(displayedUser)
+    //     fun <T> isEmptyOrNull(livedata: T?): Boolean {
+//         if(livedata==null&&livedata is String){
+//             return true
+//         }else if(livedata==null){
+//             throw Exception("Utils method isemptyornull should only have mutablelivedata of string as parameter")
+//         }
+//        if(livedata is MutableLiveData<*>) {
+//            if (livedata.value is String){
+//            return livedata.value == null || livedata.value == ""}
+//            else{
+//                throw Exception("Utils method isemptyornull should only have mutablelivedata of string as parameter")
+//            }
+//        }else if(livedata is String){
+//            return  livedata==null||livedata.equals("")
+//        }else{
+//            throw Exception("Utils method isemptyornull should only have mutablelivedata or string parameters")
+//        }
+//
+//    }
+    fun Map<String, User>.asDisplayedUsers(): MutableList<DisplayedUser> {
+        val displayedUsers = mutableListOf<DisplayedUser>()
+        forEach { (key, value) ->
+            val displayedUser = DisplayedUser(
+                    value.displayName,
+                    key,
+                    value.email,
+                    value.password
+            )
+            displayedUsers.add(displayedUser)
           }
 //        for ((key, value) in this) {
 //            val displayedUser= DisplayedUser(
@@ -110,14 +114,31 @@ object Utils {
         return displayedUsers
 
     }
+
     fun convertToRealTimeZone(zone: String): String {
-        val index= zone.indexOf(',')
-        return zone.substring(index+2)+"/"+zone.substring(0,index)
+        val index = zone.indexOf(',')
+        return zone.substring(index + 2) + "/" + zone.substring(0, index)
     }
-     fun convertToViewerFriendlyTimeZone(zone: String?): String {
-        if(zone==null)return ""
+
+    fun convertToViewerFriendlyTimeZone(zone: String?): String {
+        if (zone == null) return ""
         return zone.run {
-            val index= indexOf('/')
-            substring(index+1)+", "+substring(0,index)}
+            val index = indexOf('/')
+            substring(index + 1) + ", " + substring(0, index)
+        }
+    }
+
+    suspend fun isInternetAvailable(): Boolean {
+//        CoroutineScope(Dispatchers.Main).launch {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ipAddr: InetAddress = InetAddress.getByName("google.com")
+                !ipAddr.equals("")
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+//        }
     }
 }

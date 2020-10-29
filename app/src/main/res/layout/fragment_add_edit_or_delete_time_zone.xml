@@ -3,10 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,18 +10,31 @@
         android:orientation="vertical"
         tools:context=".crudtimezone.AddEditOrDeleteTimeZoneFragment">
 
+        <TextView
+            android:id="@+id/textView_crud_timezone_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/add_a_timezone"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/editText_timezone_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/editText_timezone_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Choose a name for your time zone"
+            android:hint="@string/choose_a_name_for_your_time_zone"
             app:layout_constraintBottom_toTopOf="@+id/location_spinner"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/textView_crud_timezone_title" />
 
         <Spinner
             android:id="@+id/location_spinner"
@@ -33,28 +42,30 @@
             android:visibility="invisible"
             android:clickable="false"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/textView"
+            app:layout_constraintBottom_toTopOf="@+id/textView_offset"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+            app:layout_constraintTop_toBottomOf="@+id/editText_timezone_name" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textView_offset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/wordStyle"
+            app:layout_constraintBottom_toBottomOf="@id/button_crud_timezone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/location_spinner" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/button_crud_timezone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Button"
+            style="@style/buttonStyle"
+            android:layout_marginBottom="8dp"
+            android:text="@string/save"
+            app:layout_constraintTop_toBottomOf="@+id/textView_offset"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -63,7 +74,8 @@
             android:id="@+id/textView_spinner_overlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Click here to select location"
+            style="@style/wordStyle"
+            android:text="@string/click_here_to_select_location"
             app:layout_constraintBottom_toBottomOf="@+id/location_spinner"
             app:layout_constraintEnd_toEndOf="@+id/location_spinner"
             app:layout_constraintStart_toStartOf="@+id/location_spinner"
@@ -80,7 +92,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_gravity="bottom|end"
-
+            android:contentDescription="@string/delete_timezone"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_delete" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

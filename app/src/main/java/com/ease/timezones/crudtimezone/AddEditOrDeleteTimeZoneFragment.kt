@@ -18,16 +18,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
+import com.ease.timezones.Utils
 import com.ease.timezones.Utils.convertToRealTimeZone
 import com.ease.timezones.Utils.convertToViewerFriendlyTimeZone
 import com.ease.timezones.Utils.getHourMinuteString
 import com.ease.timezones.Utils.isEmptyOrNull
+import com.ease.timezones.Utils.showToast
 import com.ease.timezones.databinding.FragmentAddEditOrDeleteTimeZoneBinding
 import com.ease.timezones.models.DisplayedTime
 import com.ease.timezones.models.SelectedTime
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class AddEditOrDeleteTimeZoneFragment : Fragment() {
@@ -82,7 +87,7 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
         }
         binding.textViewSpinnerOverlay.setOnClickListener {
             Log.i("uuuuuuuu", "6")
-            binding.textView.visibility = View.VISIBLE
+            binding.textViewOffset.visibility = View.VISIBLE
 //            spinnerTouched=true
             viewModel.makeSpinnerVisible()
         }
@@ -121,7 +126,7 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
                     if(isEmptyOrNull(zone))return
                     offset = TimeZone.getTimeZone(convertToRealTimeZone(zone)).rawOffset.toLong()
                     offset?.let {
-                        binding.textView.text = getHourMinuteString(it)
+                        binding.textViewOffset.text = getHourMinuteString(it)
                     }
 //                }
 //                spinnerTouched=false
@@ -136,16 +141,16 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
 
     private fun populateViews(displayedTime: DisplayedTime) {
         Log.i("uuuuuuuu", "5")
+        binding.textViewCrudTimezoneTitle.text = "Edit This Timezone"
+        binding.buttonCrudTimezone.text = "Update"
 
         binding.floatingActionButtonDeleteTimezone.show()
         binding.floatingActionButtonDeleteTimezone.setOnClickListener {
-//            if (!tryingToCommunicate) {
-                showWarningDialog()
-//            }
+            showWarningDialog()
         }
-        binding.editTextTextPersonName.setText(displayedTime.name)
-        binding.textView.setText(displayedTime.browserOffset)
-        binding.textView.visibility = View.VISIBLE
+        binding.editTextTimezoneName.setText(displayedTime.name)
+        binding.textViewOffset.setText(displayedTime.browserOffset)
+        binding.textViewOffset.visibility = View.VISIBLE
 
         binding.textViewSpinnerOverlay.setText(convertToViewerFriendlyTimeZone(displayedTime.location))
 
@@ -166,13 +171,25 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
     }
 
     private fun deleteTimeZone() {
-        val key = displayedTime!!.fireBaseKey
-        userDR?.child(key)?.removeValue()?.addOnCompleteListener {
-            if (it.isSuccessful) {
-                Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = Utils.isInternetAvailable()
+
+            if (isConnected) {
+                val key = displayedTime!!.fireBaseKey
+                userDR?.child(key)?.removeValue()?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        context?.let {
+                            showToast("Successfully deleted", it)
+                        }
+//                    Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+                    } else {
+                        Toast.makeText(requireContext(), "Unable to delete timezone due to ${it.exception?.message ?: "an unknown problem"}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
-                Toast.makeText(requireContext(), "Unable to delete timezone due to ${it.exception?.message ?: "an unknown problem"}", Toast.LENGTH_SHORT).show()
+                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+
             }
         }
     }
@@ -184,9 +201,9 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
     }
 
     private fun setUpBUttonClickListener() {
-        binding.button2.setOnClickListener {
+        binding.buttonCrudTimezone.setOnClickListener {
             if (!tryingToCommunicate) {
-                if (!isEmptyOrNull(binding.editTextTextPersonName.text.toString())) {
+                if (!isEmptyOrNull(binding.editTextTimezoneName.text.toString())) {
                     var ref = userDR
 
                     if (displayedTime == null) {
@@ -197,7 +214,7 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
                             return@setOnClickListener
                         }
                     } else {
-                        if (binding.editTextTextPersonName.text.toString().equals(displayedTime!!.name)&&binding.textViewSpinnerOverlay.isVisible) {
+                        if (binding.editTextTimezoneName.text.toString().equals(displayedTime!!.name) && binding.textViewSpinnerOverlay.isVisible) {
                             Toast.makeText(requireContext(), "You have not made any changes", Toast.LENGTH_SHORT).show()
                             return@setOnClickListener
                         } else {
@@ -206,32 +223,8 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
                         }
 
                     }
-                    tryingToCommunicate = true
-
-                    val realZone = convertToRealTimeZone(binding.locationSpinner.selectedItem.toString())
-                    ref?.setValue(
-                            SelectedTime(
-                                    binding.editTextTextPersonName.text.toString(),
-                                    realZone,
-                                    offset
-                            )
-                    )?.addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            it.addOnSuccessListener {
-                                Toast.makeText(requireContext(), "uploaded", Toast.LENGTH_SHORT).show()
-                                findNavController().popBackStack()
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "Unable to complete", Toast.LENGTH_SHORT).show()
-                            tryingToCommunicate=false
-
-                        }
-                    }?.addOnCanceledListener {
-                        Toast.makeText(requireContext(), "Action cancelled", Toast.LENGTH_SHORT).show()
-                        tryingToCommunicate=false
-
-                    }
-                }else{
+                    createOrUpdateTimeZone(ref)
+                } else {
                     Toast.makeText(requireContext(), "You must input a name and select a location", Toast.LENGTH_SHORT).show()
 
                 }
@@ -254,4 +247,40 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
 //    }
 
     }
+
+    private fun createOrUpdateTimeZone(ref: DatabaseReference?) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = Utils.isInternetAvailable()
+            if (isConnected) {
+                tryingToCommunicate = true
+
+                val realZone = convertToRealTimeZone(binding.locationSpinner.selectedItem.toString())
+                ref?.setValue(
+                        SelectedTime(
+                                binding.editTextTimezoneName.text.toString(),
+                                realZone,
+                                offset
+                        )
+                )?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        it.addOnSuccessListener {
+                            Toast.makeText(requireContext(), "uploaded", Toast.LENGTH_SHORT).show()
+                            findNavController().popBackStack()
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Unable to complete", Toast.LENGTH_SHORT).show()
+                        tryingToCommunicate = false
+
+                    }
+                }?.addOnCanceledListener {
+                    Toast.makeText(requireContext(), "Action cancelled", Toast.LENGTH_SHORT).show()
+                    tryingToCommunicate = false
+
+                }
+            } else {
+                showToast("No or poor network. Action cant be completed", requireContext())
+            }
+        }
+    }
+
 }

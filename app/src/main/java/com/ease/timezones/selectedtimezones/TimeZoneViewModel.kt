@@ -45,13 +45,17 @@ class TimeZoneViewModel(app: Application, private val uid:String) : AndroidViewM
         MediatorLiveData<MutableList<DisplayedTime>>()
 
     init {
-        _loadingStatus.value=Status.Loading()
+        _loadingStatus.value = Status.Loading()
+        Log.i("jjjjjjjjjj", "timetime")
+
         FirebaseFunctions.getInstance().getHttpsCallable("getTime")
-            .call().addOnCompleteListener{
-                    if(it.isSuccessful&&it.result!=null){
+                .call().addOnCompleteListener {
+                    if (it.isSuccessful && it.result != null) {
                         val timestamp = it.result!!.data as Long
 //                val format = SimpleDateFormat("M??d??H?m??s??")
 //                format.setTimeZone(TimeZone.getTimeZone("GMT"))
+                        Log.i("jjjjjjjjjj", "jjjj")
+
                         addSourceToTimezones(timestamp)
                     }else{
                         if(it.exception==null){
@@ -194,7 +198,7 @@ class TimeZoneViewModel(app: Application, private val uid:String) : AndroidViewM
                                         timeZones.value = list
 
                                     }
-                                    Log.i("ooooooo", "y")
+                                    Log.i("jjjjjjjjjj", list.size.toString())
 
                                 }
                             } else {

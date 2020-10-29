@@ -10,13 +10,18 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.ease.timezones.R
+import com.ease.timezones.Utils
 import com.ease.timezones.Utils.endsProperly
 import com.ease.timezones.Utils.isEmptyOrNull
 import com.ease.timezones.databinding.FragmentAddEditOrDeleteUserBinding
 import com.ease.timezones.models.DisplayedUser
 import com.ease.timezones.models.User
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AddEditOrDeleteUserFragment : Fragment() {
     private lateinit var binding: FragmentAddEditOrDeleteUserBinding
@@ -60,7 +65,8 @@ class AddEditOrDeleteUserFragment : Fragment() {
         }
         binding.floatingActionButtonDeleteUser.show()
         binding.floatingActionButtonDeleteUser.setOnClickListener {
-          showWarningDialog()
+
+            showWarningDialog()
         }
 
     }
@@ -79,17 +85,26 @@ class AddEditOrDeleteUserFragment : Fragment() {
     }
 
     private fun deleteUser() {
-        val key = user.authId
-        userDR.child(key).removeValue().addOnCompleteListener {
-            if(it.isSuccessful){
-                Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
-            }else{
-                Toast.makeText(requireContext(), "Unable to delete user due to ${it.exception?.message?:"an unknown problem"}", Toast.LENGTH_SHORT).show()
-            }
-        }.addOnCanceledListener {
-            Toast.makeText(requireContext(), "Delete was cancelled", Toast.LENGTH_SHORT).show()
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = Utils.isInternetAvailable()
 
+            if (isConnected) {
+                val key = user.authId
+                userDR.child(key).removeValue().addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+                    } else {
+                        Toast.makeText(requireContext(), "Unable to delete user due to ${it.exception?.message ?: "an unknown problem"}", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnCanceledListener {
+                    Toast.makeText(requireContext(), "Delete was cancelled", Toast.LENGTH_SHORT).show()
+
+                }
+            } else {
+                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+
+            }
         }
     }
     private fun setUpUserTimeZoneButtonListener() {
@@ -108,89 +123,117 @@ class AddEditOrDeleteUserFragment : Fragment() {
 
         binding.buttonSaveUser.setOnClickListener {
             if (!tryingToCommunicate) {
+
                 if (::user.isInitialized) {
-
-                    if (!isEmptyOrNull(binding.edittextUsername.text.toString())&&!isEmptyOrNull(binding.edittextUserPassword.text.toString())) {
-                        if (binding.edittextUserPassword.text.toString().length>5) {
-                            val key = user.authId
-                            key.let {
-                                tryingToCommunicate=true
-
-                                userDR.child(it).setValue(
-                                    User(
-                                        binding.edittextUsername.text.toString(),
-                                        binding.edittextUserEmail.text.toString(),
-                                        binding.edittextUserPassword.text.toString()
-                                    )
-                                ).addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        findNavController().popBackStack()
-                                        Toast.makeText(requireContext(), "Update was successful", Toast.LENGTH_SHORT).show()
-
-                                    } else {
-                                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
-                                        tryingToCommunicate=false
-
-                                    }
-                                }.addOnCanceledListener {
-                                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
-                                    tryingToCommunicate=false
-
-                                }
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
-
-                    }
-
+                    verifyInputsThenUpdateUser()
                 } else {
-                    if (!isEmptyOrNull(binding.edittextUsername.text.toString())&&!isEmptyOrNull(binding.edittextUserPassword.text.toString())
-                            && !isEmptyOrNull(binding.edittextUserEmail.text.toString())) {
-                        if (endsProperly(binding.edittextUserEmail.text.toString())) {
-                            if (binding.edittextUserPassword.text.toString().length>5) {
-                                Log.i("aaaaaa", "1")
-                                tryingToCommunicate=true
-
-                                userDR.push().setValue(
-                                    User(
-                                        binding.edittextUsername.text.toString(),
-                                        binding.edittextUserEmail.text.toString(),
-                                        binding.edittextUserPassword.text.toString()
-                                    )
-                                ).addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        findNavController().popBackStack()
-                                        Toast.makeText(requireContext(), "User creation successful", Toast.LENGTH_SHORT).show()
-
-                                    } else {
-                                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
-                                        tryingToCommunicate=false
-
-                                    }
-                                }.addOnCanceledListener {
-                                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
-                                    tryingToCommunicate=false
-
-                                }
-                            } else {
-                                Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
-
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "The email is invalid", Toast.LENGTH_SHORT).show()
-
-                        }
-                    } else {
-                        Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
-                    }
+                    verifyInputsThenCreateUser()
 
                 }
+
             }
         }
 
+    }
+
+    private fun verifyInputsThenCreateUser() {
+        if (!isEmptyOrNull(binding.edittextUsername.text.toString()) && !isEmptyOrNull(binding.edittextUserPassword.text.toString())
+                && !isEmptyOrNull(binding.edittextUserEmail.text.toString())) {
+            if (endsProperly(binding.edittextUserEmail.text.toString())) {
+                if (binding.edittextUserPassword.text.toString().length > 5) {
+                    Log.i("aaaaaa", "1")
+                    createUser()
+                } else {
+                    Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
+
+                }
+            } else {
+                Toast.makeText(requireContext(), "The email is invalid", Toast.LENGTH_SHORT).show()
+
+            }
+        } else {
+            Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createUser() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = Utils.isInternetAvailable()
+            if (isConnected) {
+                tryingToCommunicate = true
+                userDR.push().setValue(
+                        User(
+                                binding.edittextUsername.text.toString(),
+                                binding.edittextUserEmail.text.toString(),
+                                binding.edittextUserPassword.text.toString()
+                        )
+                ).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(requireContext(), "User creation successful, could take some seconds to reflect", Toast.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+
+                    } else {
+                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                        tryingToCommunicate = false
+
+                    }
+                }.addOnCanceledListener {
+                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                    tryingToCommunicate = false
+
+                }
+            } else {
+                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+            }
+        }
+    }
+
+    private fun verifyInputsThenUpdateUser() {
+        if (!isEmptyOrNull(binding.edittextUsername.text.toString()) && !isEmptyOrNull(binding.edittextUserPassword.text.toString())) {
+            if (binding.edittextUserPassword.text.toString().length > 5) {
+                val key = user.authId
+                updateUser(key)
+
+            } else {
+                Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
+
+        }
+    }
+
+    private fun updateUser(it: String) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val isConnected = Utils.isInternetAvailable()
+            if (isConnected) {
+                tryingToCommunicate = true
+
+                userDR.child(it).setValue(
+                        User(
+                                binding.edittextUsername.text.toString(),
+                                binding.edittextUserEmail.text.toString(),
+                                binding.edittextUserPassword.text.toString()
+                        )
+                ).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        findNavController().popBackStack()
+                        Toast.makeText(requireContext(), "Update was successful", Toast.LENGTH_SHORT).show()
+
+                    } else {
+                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                        tryingToCommunicate = false
+
+                    }
+                }.addOnCanceledListener {
+                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                    tryingToCommunicate = false
+
+                }
+            } else {
+                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+            }
+        }
     }
 
 //    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
