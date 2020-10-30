@@ -31,16 +31,16 @@
                 android:hint="@string/search_for_timezones"
                 android:inputType="text"
                 android:textAlignment="center"
-                android:visibility="gone"
+                android:visibility="invisible"
                 tools:ignore="Autofill" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_height="match_parent"
 
-            android:layout_height="match_parent">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler"
@@ -62,10 +62,10 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:clickable="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:contentDescription="@string/add_new_time_zone"
                 android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@android:drawable/ic_input_add" />
 
             <ProgressBar
@@ -81,9 +81,9 @@
 
             <TextView
                 android:id="@+id/textView_timezone_message"
+                style="@style/wordStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/wordStyle"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

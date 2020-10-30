@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ease.timezones.Utils
 import com.ease.timezones.databinding.TimezoneListItemBinding
@@ -19,41 +21,19 @@ import kotlinx.coroutines.Job
 import java.util.*
 
 class TimeZonesAdapter internal constructor(
-    private val context: Context,
-    private val itemClickListener: ItemClickListener?
-) :
+        private val itemClickListener: ItemClickListener?
+) : ListAdapter<DisplayedTime, TimeZonesAdapter.ViewHolder>(DisplayedTimeDiffCallback()) {
 
-        RecyclerView.Adapter<TimeZonesAdapter.ViewHolder>() {
-
-    private var viewModelJob = Job()
-
-
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-    private var displayedTimeList: List<DisplayedTime>? = null
     private var searchText: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-//        LayoutInflater inflater = LayoutInflater.from(context);
-//        View view = inflater.inflate(R.layout.patient_list_item, parent, false);
         val binding: TimezoneListItemBinding =
-            TimezoneListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                TimezoneListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(displayedTimeList!![position])
-    }
-
-    override fun getItemCount(): Int {
-        return if (null == displayedTimeList) 0 else displayedTimeList!!.size
-    }
-
-    fun setDisplayedTimes(displayedTimes: MutableList<DisplayedTime>) {
-        if (viewModelJob.isActive) viewModelJob.cancel()
-
-        displayedTimeList = displayedTimes
-        notifyDataSetChanged()
+        holder.bind(getItem(position))
     }
 
     fun setSearchText(searchString: String?) {
@@ -66,65 +46,69 @@ class TimeZonesAdapter internal constructor(
 
     inner class ViewHolder internal constructor(val binding: TimezoneListItemBinding) :
             RecyclerView.ViewHolder(binding.getRoot()), View.OnClickListener {
-        //        var hospitalNumber: TextView? = null
-//        var binding: JoggingEntryListItemBinding
+
+        var time: DisplayedTime? = null
+
         override fun onClick(view: View) {
-            itemClickListener?.onItemClick(displayedTimeList!![adapterPosition])
+            itemClickListener?.onItemClick(time)
         }
 
         fun bind(displayedTime: DisplayedTime) {
+            time = displayedTime
             binding.timeZoneNameTv.setText(displayedTime.name)
             binding.timeZoneLocTv.setText(Utils.convertToViewerFriendlyTimeZone(displayedTime.location))
             binding.timeZoneTimeTv.setTimeZone(displayedTime.location)
             binding.timeZoneTimeTv.format12Hour="hh:mm:ss a"
             binding.timeZoneTimeTv.format24Hour=null
-//            binding.timeZoneTimeTv.setText(displayedTime.currentTime)
             binding.timeZoneOffsetTv.setText(displayedTime.browserOffset)
-            if (searchText!=null) {
+            if (!searchText.isNullOrEmpty()) {
                 highlightString(binding.timeZoneNameTv)
                 highlightString(binding.timeZoneLocTv)
             }
-
-
         }
 
         init {
-            //            binding = JoggingEntryListItemBinding.bind(itemView);
             binding.getRoot().setOnClickListener(this)
-//            this.binding = binding
         }
     }
 
+    //helper method to colour the search item yellow as appropriate
     private fun highlightString(textView: TextView) {
 //Get the text from text view and create a spannable string
         val spannableString = SpannableString(textView.text)
         //Get the previous spans and remove them
         val backgroundSpans = spannableString.getSpans(
-            0, spannableString.length,
-            BackgroundColorSpan::class.java
+                0, spannableString.length,
+                BackgroundColorSpan::class.java
         )
         for (span in backgroundSpans) {
             spannableString.removeSpan(span)
         }
 
-//Search for all occurrences of the keyword in the string
+//Search for the first occurrence of the keyword in the string
         val ss = spannableString.toString()
         val indexOfKeyword = ss.toLowerCase(Locale.ROOT).indexOf(searchText!!.toLowerCase(Locale.ROOT))
         if (indexOfKeyword >= 0) {
             //Create a background color span on the keyword
             spannableString.setSpan(
-                BackgroundColorSpan(Color.YELLOW),
-                indexOfKeyword,
-                indexOfKeyword + searchText!!.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    BackgroundColorSpan(Color.YELLOW),
+                    indexOfKeyword,
+                    indexOfKeyword + searchText!!.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-
-//            //Get the next index of the keyword
-//            indexOfKeyword = ss.toLowerCase()
-//                .indexOf(searchText!!.toLowerCase(), indexOfKeyword + searchText!!.length)
         }
 
 //Set the final text on TextView
         textView.text = spannableString
+    }
+}
+
+class DisplayedTimeDiffCallback : DiffUtil.ItemCallback<DisplayedTime>() {
+    override fun areItemsTheSame(oldItem: DisplayedTime, newItem: DisplayedTime): Boolean {
+        return oldItem.fireBaseKey == newItem.fireBaseKey
+    }
+
+    override fun areContentsTheSame(oldItem: DisplayedTime, newItem: DisplayedTime): Boolean {
+        return oldItem.equals(newItem)
     }
 }

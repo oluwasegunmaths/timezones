@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ease.timezones.R
+import com.ease.timezones.Utils.showToast
 import com.ease.timezones.databinding.FragmentUsersBinding
 import com.ease.timezones.models.DisplayedUser
 import com.ease.timezones.selectedtimezones.TimeZoneViewModel
@@ -33,61 +35,55 @@ class UsersFragment : Fragment() {
         setUpRecycler()
         setUpFAB()
         setHasOptionsMenu(true)
-//        viewModel.attachChatDatabaseReadListener()
-        Log.i("ooooooo","e")
+        Log.i("ooooooo", "e")
 
-        viewModel.users.observe(viewLifecycleOwner,{
-            Log.i("ooooooo","f")
-              if(it==null||it.isEmpty()){
-                  Log.i("ooooooo","hhhhhhh")
-
-              }
-            adapter.setPatients(it)
-            Log.i("ooooooo","g")
+        viewModel.users.observe(viewLifecycleOwner, {
+            adapter.submitList(it)
+            Log.i("ooooooo", "g")
 
         })
-//        viewModel.displayedUsers.observe(viewLifecycleOwner, Observer {
-//            adapter.setPatients(it)
-//            adapter.notifyItemInserted(it.size)
-//
-//        })
+        viewModel.isLoggedIn.observe(viewLifecycleOwner, {
+            if (!it) {
+                findNavController().navigate(UsersFragmentDirections.actionUsersFragmentToLoginFragment())
+            }
+
+        })
         viewModel.loadingStatus.observe(viewLifecycleOwner, {
-            when(it){
+            when (it) {
                 is UserListViewModel.Status.Loading -> showProgresssBarAndLoadingText()
                 is UserListViewModel.Status.Loaded -> hideProgressBarAndLoadingText()
                 is UserListViewModel.Status.Error -> showErrorLoading(it.message)
-
-
-
             }
-
-//            adapter.setSearchText(it)
-
         })
         val toolbar = binding.toolbar
         (activity as AppCompatActivity?)?.setSupportActionBar(toolbar)
+        setAppropriateTitle()
         return binding.root
     }
 
-    private fun hideProgressBarAndLoadingText() {
-        binding.progressBarUserList.visibility= View.GONE
-        binding.textViewUserListMessage.visibility= View.GONE
+    private fun setAppropriateTitle() {
+        if (viewModel.isAdmin) {
+            (activity as AppCompatActivity?)?.title = getString(R.string.welcome_admin)
+        } else {
+            (activity as AppCompatActivity?)?.title = getString(R.string.welcome_manager)
+        }
+    }
 
+    private fun hideProgressBarAndLoadingText() {
+        binding.progressBarUserList.visibility = View.GONE
+        binding.textViewUserListMessage.visibility = View.GONE
     }
 
     private fun showErrorLoading(message: String) {
-        binding.progressBarUserList.visibility= View.GONE
-        binding.textViewUserListMessage.visibility= View.VISIBLE
-        binding.textViewUserListMessage.text= message
-
+        binding.progressBarUserList.visibility = View.GONE
+        binding.textViewUserListMessage.visibility = View.VISIBLE
+        binding.textViewUserListMessage.text = message
     }
 
     private fun showProgresssBarAndLoadingText() {
         binding.progressBarUserList.visibility= View.VISIBLE
-        binding.textViewUserListMessage.visibility= View.VISIBLE
-        binding.textViewUserListMessage.text= "Loading"
-
-
+        binding.textViewUserListMessage.visibility = View.VISIBLE
+        binding.textViewUserListMessage.text = getString(R.string.loading)
     }
     private fun setUpFAB() {
         binding.floatingActionButton.setOnClickListener { v ->
@@ -113,7 +109,6 @@ class UsersFragment : Fragment() {
                     )
                 }
             }
-
         })
         binding.recycler.adapter = adapter
     }
@@ -126,11 +121,8 @@ class UsersFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_signout) {
             viewModel.signOut()
-            findNavController().navigate(UsersFragmentDirections.actionUsersFragmentToLoginFragment())
             return true
         }
         return super.onOptionsItemSelected(item)
     }
-
-
 }

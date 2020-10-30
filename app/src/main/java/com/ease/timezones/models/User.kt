@@ -9,16 +9,8 @@ data class User(
     var email: String?,
     var password: String? = null
 ) : Parcelable {
+    //empty constructor required for firebase
     constructor() : this(null, null, null)
 
-//    fun asDisplayedUser(id: String): DisplayedUser {
-//        return DisplayedUser(
-//            displayName = displayName,
-//            authId = id,
-//            email = email,
-//            password = password
-//        )
-//
-//    }
 
 }

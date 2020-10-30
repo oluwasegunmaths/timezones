@@ -13,10 +13,10 @@ import com.ease.timezones.R
 import com.ease.timezones.Utils
 import com.ease.timezones.Utils.endsProperly
 import com.ease.timezones.Utils.isEmptyOrNull
+import com.ease.timezones.Utils.showToast
 import com.ease.timezones.databinding.FragmentAddEditOrDeleteUserBinding
 import com.ease.timezones.models.DisplayedUser
 import com.ease.timezones.models.User
-import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -45,95 +45,87 @@ class AddEditOrDeleteUserFragment : Fragment() {
         if (::user.isInitialized) {
             populateViews(user)
             userDR = mFirebaseDatabase.getReference().child("users")
-            Log.i("aaaaaa", "2")
-
-
         }
         setHasOptionsMenu(true)
         return binding.root
     }
 
     private fun populateViews(user: DisplayedUser) {
+        binding.textViewCrudUsersTitle.text = getString(R.string.edit_this_user)
         binding.edittextUserEmail.setText(user.email)
         binding.edittextUserEmail.inputType = InputType.TYPE_NULL
         binding.edittextUserPassword.setText(user.password)
         binding.edittextUsername.setText(user.displayName)
         val isAdmin = AddEditOrDeleteUserFragmentArgs.fromBundle(requireArguments()).isAdmin
         if (isAdmin) {
-            binding.buttonShowUserTimezones.visibility = View.VISIBLE
-            setUpUserTimeZoneButtonListener()
+            setUpEmailClickListener()
         }
         binding.floatingActionButtonDeleteUser.show()
         binding.floatingActionButtonDeleteUser.setOnClickListener {
-
             showWarningDialog()
         }
-
     }
+
     private fun showWarningDialog() {
         val dialogBuilder = AlertDialog.Builder(requireContext())
-        dialogBuilder.setMessage("Are you sure you want to permanently delete this user?")
-            .setPositiveButton("Ok") { dialog, id ->
-                deleteUser()
-                dialog.dismiss()
-            } .setNegativeButton("Cancel") { dialog, id ->
-                dialog.dismiss()
-            }
+        dialogBuilder.setMessage(getString(R.string.delete_user_warning))
+                .setPositiveButton("Ok") { dialog, id ->
+                    deleteUser()
+                    dialog.dismiss()
+                }.setNegativeButton(getString(R.string.cancal)) { dialog, id ->
+                    dialog.dismiss()
+                }
         val alert = dialogBuilder.create()
-        alert.setTitle("Warning")
+        alert.setTitle(getString(R.string.warning))
         alert.show()
     }
 
     private fun deleteUser() {
         CoroutineScope(Dispatchers.Main).launch {
             val isConnected = Utils.isInternetAvailable()
-
             if (isConnected) {
                 val key = user.authId
                 userDR.child(key).removeValue().addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(requireContext(), "Successfully deleted", Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            showToast("Successfully deleted", it)
+                        }
                         findNavController().popBackStack()
                     } else {
-                        Toast.makeText(requireContext(), "Unable to delete user due to ${it.exception?.message ?: "an unknown problem"}", Toast.LENGTH_SHORT).show()
+                        showToast("Unable to delete user due to ${it.exception?.message ?: "an unknown problem"}", context)
                     }
                 }.addOnCanceledListener {
-                    Toast.makeText(requireContext(), "Delete was cancelled", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        showToast("Delete was cancelled", it)
+                    }
 
                 }
             } else {
-                Utils.showToast("No or poor network. Action cant be completed", requireContext())
-
+                showToast("No or poor network. Action cant be completed", requireContext())
             }
         }
     }
-    private fun setUpUserTimeZoneButtonListener() {
-        binding.buttonShowUserTimezones.setOnClickListener {
+
+    private fun setUpEmailClickListener() {
+        binding.edittextUserEmail.setOnClickListener {
             findNavController().navigate(
-                AddEditOrDeleteUserFragmentDirections.actionAddEditOrDeleteUserFragmentToTimeZoneFragment(
-                    user.authId
-                )
+                    AddEditOrDeleteUserFragmentDirections.actionAddEditOrDeleteUserFragmentToTimeZoneFragment(
+                            user.authId
+                    )
             )
         }
-
     }
 
     private fun setUpSaveButton() {
-        Log.i("aaaaaa", "0")
-
         binding.buttonSaveUser.setOnClickListener {
             if (!tryingToCommunicate) {
-
                 if (::user.isInitialized) {
                     verifyInputsThenUpdateUser()
                 } else {
                     verifyInputsThenCreateUser()
-
                 }
-
             }
         }
-
     }
 
     private fun verifyInputsThenCreateUser() {
@@ -141,18 +133,21 @@ class AddEditOrDeleteUserFragment : Fragment() {
                 && !isEmptyOrNull(binding.edittextUserEmail.text.toString())) {
             if (endsProperly(binding.edittextUserEmail.text.toString())) {
                 if (binding.edittextUserPassword.text.toString().length > 5) {
-                    Log.i("aaaaaa", "1")
                     createUser()
                 } else {
-                    Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
-
+                    context?.let {
+                        showToast("Password should be at least 6 characters long", it)
+                    }
                 }
             } else {
-                Toast.makeText(requireContext(), "The email is invalid", Toast.LENGTH_SHORT).show()
-
+                context?.let {
+                    showToast("The email is invalid", it)
+                }
             }
         } else {
-            Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
+            context?.let {
+                showToast("You didnt fill all the fields", it)
+            }
         }
     }
 
@@ -169,21 +164,25 @@ class AddEditOrDeleteUserFragment : Fragment() {
                         )
                 ).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(requireContext(), "User creation successful, could take some seconds to reflect", Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            showToast("User creation successful, could take some seconds to reflect", it)
+                        }
                         findNavController().popBackStack()
 
                     } else {
-                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            showToast("Action was not successful", it)
+                        }
                         tryingToCommunicate = false
-
                     }
                 }.addOnCanceledListener {
-                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        showToast("Action could not be completed", it)
+                    }
                     tryingToCommunicate = false
-
                 }
             } else {
-                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+                showToast("No or poor network. Action cant be completed", requireContext())
             }
         }
     }
@@ -193,13 +192,15 @@ class AddEditOrDeleteUserFragment : Fragment() {
             if (binding.edittextUserPassword.text.toString().length > 5) {
                 val key = user.authId
                 updateUser(key)
-
             } else {
-                Toast.makeText(requireContext(), "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show()
+                context?.let {
+                    showToast("Password should be at least 6 characters long", it)
+                }
             }
         } else {
-            Toast.makeText(requireContext(), "You didnt fill all the fields", Toast.LENGTH_SHORT).show()
-
+            context?.let {
+                showToast("You didnt fill all the fields", it)
+            }
         }
     }
 
@@ -218,42 +219,28 @@ class AddEditOrDeleteUserFragment : Fragment() {
                 ).addOnCompleteListener {
                     if (it.isSuccessful) {
                         findNavController().popBackStack()
-                        Toast.makeText(requireContext(), "Update was successful", Toast.LENGTH_SHORT).show()
-
+                        context?.let {
+                            showToast("Update was successful", it)
+                        }
                     } else {
-                        Toast.makeText(requireContext(), "Action was not successful", Toast.LENGTH_SHORT).show()
+                        context?.let {
+                            showToast("Action was not successful", it)
+                        }
                         tryingToCommunicate = false
-
                     }
                 }.addOnCanceledListener {
-                    Toast.makeText(requireContext(), "Action could not be completed", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        showToast("Action could not be completed", it)
+                    }
                     tryingToCommunicate = false
-
                 }
             } else {
-                Utils.showToast("No or poor network. Action cant be completed", requireContext())
+                context?.let {
+                    showToast("No or poor network. Action cant be completed", requireContext())
+                }
             }
         }
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        if (::user.isInitialized) inflater.inflate(R.menu.menu_time_zone_detail, menu)
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        if (item.itemId == R.id.action_delete) {
-////            this::mFirebaseDatabase.isInitialized
-//            val key = user.authId
-//            userDR.child(key).removeValue()
-////            key?.let {
-////
-////            }
-////            userDR?.child(key)?.removeValue()
-//            return true
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

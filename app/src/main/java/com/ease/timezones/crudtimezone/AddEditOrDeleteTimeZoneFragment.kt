@@ -44,38 +44,29 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
     private var displayedTime: DisplayedTime? = null
     val viewModel: AddEditOrDeleteTimeZoneViewModel by lazy {
         ViewModelProvider(this).get(AddEditOrDeleteTimeZoneViewModel::class.java)
-
     }
     private var tryingToCommunicate: Boolean = false
-//    private var spinnerTouched = false
-
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_add_edit_or_delete_time_zone, container, false
         )
         viewModel.populateAdapter.observe(viewLifecycleOwner, {
             if (it) {
-                Log.i("uuuuuuu", "1")
                 setUpSpinner()
             }
         })
         viewModel.isSpinnerVisible.observe(viewLifecycleOwner, {
             if (it) {
-                Log.i("uuuuuuuu", "2")
-
                 binding.textViewSpinnerOverlay.visibility = GONE
                 binding.locationSpinner.isClickable = true
                 binding.locationSpinner.visibility = VISIBLE
             }
         })
-//        val timezones = TimeZone.getAvailableIDs()
-//        val minutes = TimeZone.getDefault().rawOffset / 60000
 
         mFirebaseDatabase = FirebaseDatabase.getInstance()
         mFirebaseAuth = FirebaseAuth.getInstance()
@@ -86,45 +77,45 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
             populateViews(it)
         }
         binding.textViewSpinnerOverlay.setOnClickListener {
-            Log.i("uuuuuuuu", "6")
             binding.textViewOffset.visibility = View.VISIBLE
-//            spinnerTouched=true
             viewModel.makeSpinnerVisible()
         }
         return binding.root
     }
 
     private fun setUpSpinner() {
-        Log.i("uuuuuuuu", "3")
-
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, viewModel.timeZones).also { adapter ->
             // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             // Apply the adapter to the spinner
             binding.locationSpinner.adapter = adapter
         }
-        displayedTime?.apply {
-            //prevents onitemselected from being triggered when th listener is first attached to the spinner
-            binding.locationSpinner.setSelection(viewModel.timeZones.indexOf(convertToViewerFriendlyTimeZone(location)))
-        }
-//        binding.locationSpinner.setSelection(Adapter.NO_SELECTION, false);
+        if (displayedTime == null) {
+            if (viewModel.indexOfSelectedTime != -1) {
+                binding.locationSpinner.setSelection(viewModel.indexOfSelectedTime)
+            }
+        } else {
+            if (viewModel.indexOfSelectedTime == -1) {
+                //prevents onitemselected from being triggered when th listener is first attached to the spinner
+                binding.locationSpinner.setSelection(viewModel.timeZones.indexOf(convertToViewerFriendlyTimeZone(displayedTime!!.location)))
+            } else {
+                binding.locationSpinner.setSelection(viewModel.indexOfSelectedTime)
 
-//        if(displayedTime==null){
-//            binding.locationSpinner.setSelection(1)
-////            binding.textView.setText(getHourMinuteString(viewModel.timeZones[1]))
-//        }
-//        binding.locationSpinner.setOnTouchListener { v, event ->
-//            spinnerTouched=true
-//            false
-//        }
+            }
+        }
+        displayedTime?.apply {
+
+        }
+
         binding.locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
 //                if (spinnerTouched) {
-                    Log.i("uuuuuuuu", "4")
+                Log.i("uuuuuuuu", "4")
 
-                    val zone = parent?.getItemAtPosition(position) as String
+                val zone = parent?.getItemAtPosition(position) as String
                     if(isEmptyOrNull(zone))return
-                    offset = TimeZone.getTimeZone(convertToRealTimeZone(zone)).rawOffset.toLong()
+                viewModel.indexOfSelectedTime = position
+                offset = TimeZone.getTimeZone(convertToRealTimeZone(zone)).rawOffset.toLong()
                     offset?.let {
                         binding.textViewOffset.text = getHourMinuteString(it)
                     }
@@ -230,22 +221,6 @@ class AddEditOrDeleteTimeZoneFragment : Fragment() {
                 }
             }
         }
-
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        displayedTime?.let { inflater.inflate(R.menu.menu_time_zone_detail, menu) }
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        if (item.itemId == R.id.action_delete) {
-////            this::mFirebaseDatabase.isInitialized
-//            val key = displayedTime!!.fireBaseKey
-//            userDR?.child(key)?.removeValue()
-//            return true
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
-
     }
 
     private fun createOrUpdateTimeZone(ref: DatabaseReference?) {

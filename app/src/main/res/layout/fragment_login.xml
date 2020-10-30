@@ -42,6 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_email"
+            android:maxLength="50"
 
             android:drawablePadding="5dp"
             android:ems="10"
@@ -72,6 +73,8 @@
             android:drawablePadding="5dp"
             android:inputType="textPassword"
             android:singleLine="true"
+            android:maxLength="20"
+
             android:text="@={viewModel._passwordText}"
             app:layout_constraintBottom_toTopOf="@+id/signin_button"
             app:layout_constraintEnd_toEndOf="parent"

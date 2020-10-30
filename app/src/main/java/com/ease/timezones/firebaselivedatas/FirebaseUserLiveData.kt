@@ -26,38 +26,26 @@ import com.google.firebase.auth.FirebaseUser
  * be null.
  *
  */
-class FirebaseUserLiveData(val f: FirebaseAuth) : LiveData<FirebaseUser?>() {
-    //    private val firebaseAuth = FirebaseAuth.getInstance()
-    // boolean flag to ensure the method in the listener is not triggered when the listener
-//    is just being registered . This is to prevent bugs. link: https://firebase.google.com/docs/reference/android/com/google/firebase/auth/FirebaseAuth.AuthStateListener
-    private var authHasBeenRegistered = false
+class FirebaseUserLiveData(val auth: FirebaseAuth) : LiveData<FirebaseUser?>() {
 
     private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-        // Use the FirebaseAuth instance instantiated at the beginning of the class to get an entry
-        // point into the Firebase Authentication SDK the app is using.
         // With an instance of the FirebaseAuth class, you can now query for the current user.
         Log.i("nnnnnnnnnn", "howhow")
-//        if (authHasBeenRegistered) {
-//            Log.i("nnnnnnnnnn", "howhow1")
 
-            value = firebaseAuth.currentUser
+        value = firebaseAuth.currentUser
 
-//        } else {
-//            authHasBeenRegistered = true
-//        }
     }
 
     // When this object has an active observer, start observing the FirebaseAuth state to see if
     // there is currently a logged in user.
     override fun onActive() {
-        Log.i("qwwerty","gg")
-        f.addAuthStateListener(authStateListener)
+        Log.i("qwwerty", "gg")
+        auth.addAuthStateListener(authStateListener)
     }
 
     // When this object no longer has an active observer, stop observing the FirebaseAuth state to
     // prevent memory leaks.
     override fun onInactive() {
-//        authHasBeenRegistered=false
-        f.removeAuthStateListener(authStateListener)
+        auth.removeAuthStateListener(authStateListener)
     }
 }

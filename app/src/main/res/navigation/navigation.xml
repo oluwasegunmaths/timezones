@@ -57,8 +57,7 @@
             app:popUpToInclusive="true" />
         <argument
             android:name="authId"
-            app:argType="string"
-            app:nullable="true" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/usersFragment"

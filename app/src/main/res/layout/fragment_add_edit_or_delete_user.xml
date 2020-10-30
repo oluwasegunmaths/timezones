@@ -9,17 +9,33 @@
         android:layout_margin="16dp"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/textView_crud_users_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/add_a_user"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/edittext_user_email"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <EditText
             android:id="@+id/edittext_user_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/email"
+            android:maxLength="50"
+
             android:inputType="textEmailAddress"
             app:layout_constraintBottom_toTopOf="@+id/edittext_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/textView_crud_users_title" />
 
         <EditText
             android:id="@+id/edittext_username"
@@ -28,6 +44,7 @@
             android:ems="10"
             android:inputType="textPersonName"
             android:hint="@string/username"
+            android:maxLength="50"
 
             app:layout_constraintBottom_toTopOf="@+id/edittext_user_password"
             app:layout_constraintEnd_toEndOf="parent"
@@ -39,6 +56,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:maxLength="20"
+
             android:inputType="textPersonName"
             android:hint="@string/password"
             app:layout_constraintBottom_toTopOf="@+id/button_save_user"
@@ -52,23 +71,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/buttonStyle"
-            app:layout_constraintBottom_toTopOf="@+id/button_show_user_timezones"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:text="@string/save"
-            app:layout_constraintTop_toBottomOf="@+id/edittext_user_password" />
-
-        <Button
-            android:id="@+id/button_show_user_timezones"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Button"
-            android:visibility="gone"
-            style="@style/buttonStyle"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_save_user" />
+            app:layout_constraintTop_toBottomOf="@+id/edittext_user_password" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton_delete_user"

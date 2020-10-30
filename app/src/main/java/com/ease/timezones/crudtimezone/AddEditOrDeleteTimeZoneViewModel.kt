@@ -1,7 +1,6 @@
 package com.ease.timezones.crudtimezone
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,10 +14,10 @@ import java.util.*
 class AddEditOrDeleteTimeZoneViewModel(app: Application) : AndroidViewModel(app) {
     fun makeSpinnerVisible() {
         _isSpinnerVisible.value=true
-
     }
 
-    var timeZones:MutableList<String> = mutableListOf()
+    var indexOfSelectedTime: Int = -1
+    var timeZones: MutableList<String> = mutableListOf()
     private val _populateAdapter = MutableLiveData<Boolean>()
     val populateAdapter: LiveData<Boolean>
         get() = _populateAdapter
@@ -35,12 +34,7 @@ class AddEditOrDeleteTimeZoneViewModel(app: Application) : AndroidViewModel(app)
                     }
                 }
             }
-            Log.i("uuuuuuuu","7")
-
             _populateAdapter.value=true
-            Log.i("uuuuuuuu","8")
-
-
         }
 
     }

@@ -45,6 +45,8 @@
             android:ems="10"
             android:inputType="textPassword"
             android:text="@={viewModel.registerPasswordText}"
+            android:maxLength="50"
+
             android:drawableStart="@drawable/ic_password"
             android:drawablePadding="5dp"
             android:singleLine="true"
@@ -70,6 +72,8 @@
             android:text="@={viewModel.registerEmailText}"
             android:drawableStart="@drawable/ic_email"
             android:drawablePadding="5dp"
+            android:maxLength="20"
+
             android:singleLine="true"
             app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
             app:layout_constraintEnd_toEndOf="parent"
@@ -92,6 +96,8 @@
             android:text="@={viewModel.registerPassWordConfirmationText}"
             android:drawableStart="@drawable/ic_password"
             android:drawablePadding="5dp"
+            android:maxLength="20"
+
             android:singleLine="true"
             android:inputType="textPassword"
             app:layout_constraintBottom_toTopOf="@+id/button"

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_timezones_match">No timezones match your search</string>
+    <string name="no_timezones_yet">No timezones yet. Click on the button at bottom right to add a timezone</string>
+    <string name="edit_this_user">Edit This User</string>
+</resources>

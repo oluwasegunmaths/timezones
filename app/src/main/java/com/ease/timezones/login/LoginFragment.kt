@@ -23,7 +23,6 @@ import com.ease.timezones.Utils.MANAGER
 import com.ease.timezones.Utils.RC_SIGN_IN
 import com.ease.timezones.Utils.ROLE
 import com.ease.timezones.Utils.USER
-import com.ease.timezones.Utils.getRole
 import com.ease.timezones.Utils.showToast
 import com.ease.timezones.databinding.FragmentLoginBinding
 import com.ease.timezones.splashscreen.SplashScreenFragmentDirections
